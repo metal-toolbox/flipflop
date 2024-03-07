@@ -10,34 +10,34 @@ import (
 )
 
 var (
-	GitCommit            string
-	GitBranch            string
-	GitSummary           string
-	BuildDate            string
-	AppVersion           string
-	ServerserviceVersion = serverserviceVersion()
-	GoVersion            = runtime.Version()
+	GitCommit         string
+	GitBranch         string
+	GitSummary        string
+	BuildDate         string
+	AppVersion        string
+	FleetdbAPIVersion = fleetdbAPIVersion()
+	GoVersion         = runtime.Version()
 )
 
 type Version struct {
-	GitCommit            string `json:"git_commit"`
-	GitBranch            string `json:"git_branch"`
-	GitSummary           string `json:"git_summary"`
-	BuildDate            string `json:"build_date"`
-	AppVersion           string `json:"app_version"`
-	GoVersion            string `json:"go_version"`
-	ServerserviceVersion string `json:"serverservice_version"`
+	GitCommit         string `json:"git_commit"`
+	GitBranch         string `json:"git_branch"`
+	GitSummary        string `json:"git_summary"`
+	BuildDate         string `json:"build_date"`
+	AppVersion        string `json:"app_version"`
+	GoVersion         string `json:"go_version"`
+	FleetdbAPIVersion string `json:"fleetdbapi_version"`
 }
 
 func Current() Version {
 	return Version{
-		GitBranch:            GitBranch,
-		GitCommit:            GitCommit,
-		GitSummary:           GitSummary,
-		BuildDate:            BuildDate,
-		AppVersion:           AppVersion,
-		GoVersion:            GoVersion,
-		ServerserviceVersion: ServerserviceVersion,
+		GitBranch:         GitBranch,
+		GitCommit:         GitCommit,
+		GitSummary:        GitSummary,
+		BuildDate:         BuildDate,
+		AppVersion:        AppVersion,
+		GoVersion:         GoVersion,
+		FleetdbAPIVersion: FleetdbAPIVersion,
 	}
 }
 
@@ -50,10 +50,10 @@ func ExportBuildInfoMetric() {
 		[]string{"branch", "commit", "summary", "builddate", "version", "goversion", "serverserviceVersion"},
 	)
 
-	buildInfo.WithLabelValues(GitBranch, GitCommit, GitSummary, BuildDate, AppVersion, GoVersion, ServerserviceVersion).Set(1)
+	buildInfo.WithLabelValues(GitBranch, GitCommit, GitSummary, BuildDate, AppVersion, GoVersion, FleetdbAPIVersion).Set(1)
 }
 
-func serverserviceVersion() string {
+func fleetdbAPIVersion() string {
 	buildInfo, ok := rdebug.ReadBuildInfo()
 	if !ok {
 		return ""
