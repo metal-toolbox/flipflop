@@ -2,6 +2,7 @@ package flipflop
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -73,7 +74,22 @@ func (s *statusPublisher) Publish(ctx context.Context, serverID, conditionID, st
 	)
 	defer span.End()
 
+	sv := &rctypes.StatusValue{
+		WorkerID:  s.controllerID.String(),
+		Target:    serverID,
+		TraceID:   trace.SpanFromContext(ctx).SpanContext().TraceID().String(),
+		SpanID:    trace.SpanFromContext(ctx).SpanContext().SpanID().String(),
+		State:     string(state),
+		Status:    statusInfoJSON(status),
+		UpdatedAt: time.Now(),
+	}
+
+	payload := sv.MustBytes()
+
 	facility := "facility"
+	if s.facilityCode != "" {
+		facility = s.facilityCode
+	}
 
 	key := fmt.Sprintf("%s.%s", facility, conditionID)
 
@@ -114,18 +130,3 @@ func (s *statusPublisher) Publish(ctx context.Context, serverID, conditionID, st
 
 	return revision
 }
-
-//func statusFromContext(hCtx *sm.HandlerContext) []byte {
-//	sv := &model.StatusValue{
-//		flipflopID: hCtx.flipflopID.String(),
-//		Target:    hCtx.Asset.ID.String(),
-//		TraceID:   trace.SpanFromContext(hCtx.Ctx).SpanContext().TraceID().String(),
-//		SpanID:    trace.SpanFromContext(hCtx.Ctx).SpanContext().SpanID().String(),
-//		State:     string(hCtx.Task.State()),
-//		Status:    statusInfoJSON(hCtx.Task.Status),
-//		// ResourceVersion:  XXX: the handler context has no concept of this! does this make
-//		// sense at the controller-level?
-//		UpdatedAt: time.Now(),
-//	}
-//	return sv.MustBytes()
-//}
