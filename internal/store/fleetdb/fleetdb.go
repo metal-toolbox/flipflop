@@ -33,7 +33,7 @@ type Store struct {
 }
 
 // NewStore returns a fleetdb store queryor to lookup and publish assets to, from the store.
-func New(ctx context.Context, appKind model.AppKind, cfg *app.FleetDBOptions, logger *logrus.Logger) (*Store, error) {
+func New(ctx context.Context, cfg *app.FleetDBOptions, logger *logrus.Logger) (*Store, error) {
 	apiclient, err := NewFleetDBClient(ctx, cfg, logger)
 	if err != nil {
 		return nil, err
