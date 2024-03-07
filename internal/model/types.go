@@ -7,15 +7,13 @@ import (
 )
 
 type (
-	AppKind   string
 	StoreKind string
 	// LogLevel is the logging level string.
 	LogLevel string
 )
 
 const (
-	AppName                 = "flipflop"
-	AppKindflipflop AppKind = "worker"
+	AppName = "flipflop"
 
 	InventoryStoreYAML StoreKind = "yaml"
 	FleetDB            StoreKind = "fleetdb"
@@ -26,14 +24,12 @@ const (
 	LogLevelTrace LogLevel = "trace"
 )
 
-// AppKinds returns the supported flipflop app kinds
-func AppKinds() []AppKind { return []AppKind{AppKindflipflop} }
-
 // StoreKinds returns the supported asset inventory, firmware configuration sources
 func StoreKinds() []StoreKind {
 	return []StoreKind{InventoryStoreYAML, FleetDB}
 }
 
+// nolint:govet // prefer to keep field ordering as is
 type Asset struct {
 	ID uuid.UUID
 

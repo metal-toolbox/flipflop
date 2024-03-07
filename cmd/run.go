@@ -42,7 +42,6 @@ var (
 
 func runWorker(ctx context.Context) {
 	theApp, termCh, err := app.New(
-		model.AppKindflipflop,
 		model.StoreKind(storeKind),
 		cfgFile,
 		logLevel,
@@ -72,12 +71,11 @@ func runWorker(ctx context.Context) {
 	inv, err := store.NewRepository(
 		ctx,
 		theApp.Config.StoreKind,
-		theApp.Kind,
 		theApp.Config,
 		theApp.Logger,
 	)
 	if err != nil {
-		log.Fatal(err)
+		theApp.Logger.Fatal(err)
 	}
 
 	stream, err := events.NewStream(*theApp.Config.NatsOptions)

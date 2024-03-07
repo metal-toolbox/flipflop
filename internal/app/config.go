@@ -13,10 +13,6 @@ import (
 	"go.hollow.sh/toolbox/events"
 )
 
-const (
-	flipflopConcurrency = 5
-)
-
 var (
 	ErrConfig = errors.New("configuration error")
 )
@@ -28,9 +24,6 @@ type Configuration struct {
 	// LogLevel is the app verbose logging level.
 	// one of - info, debug, trace
 	LogLevel string `mapstructure:"log_level"`
-
-	// AppKind is the application kind - worker / client
-	AppKind model.AppKind `mapstructure:"app_kind"`
 
 	// flipflop configuration
 	Concurrency int `mapstructure:"concurrency"`

@@ -35,19 +35,13 @@ type App struct {
 	Config *Configuration
 	// Logger is the app logger
 	Logger *logrus.Logger
-	// Kind is the type of application - worker
-	Kind model.AppKind
 }
 
 // New returns returns a new instance of the flipflop app
-func New(appKind model.AppKind, storeKind model.StoreKind, cfgFile, loglevel string, profiling bool) (*App, <-chan os.Signal, error) {
-	if appKind != model.AppKindflipflop {
-		return nil, nil, errors.Wrap(ErrAppInit, "invalid app kind: "+string(appKind))
-	}
+func New(storeKind model.StoreKind, cfgFile, loglevel string, profiling bool) (*App, <-chan os.Signal, error) {
 
 	app := &App{
 		v:      viper.New(),
-		Kind:   appKind,
 		Config: &Configuration{},
 		Logger: logrus.New(),
 	}
