@@ -21,7 +21,7 @@ var (
 // This starts a go-routine to peridocally check in with the NATS kv
 func (f *flipflop) startflipflopLivenessCheckin(ctx context.Context) {
 	once.Do(func() {
-		f.id = registry.GetID(f.name)
+		f.controllerID = registry.GetID(f.name)
 		natsJS, ok := f.stream.(*events.NatsJetstream)
 		if !ok {
 			f.logger.Error("Non-NATS stores are not supported for worker-liveness")
@@ -47,9 +47,11 @@ func (f *flipflop) startflipflopLivenessCheckin(ctx context.Context) {
 }
 
 func (f *flipflop) checkinRoutine(ctx context.Context) {
-	if err := registry.RegisterController(f.id); err != nil {
+	if err := registry.RegisterController(f.controllerID); err != nil {
 		f.logger.WithError(err).Warn("unable to do initial worker liveness registration")
 	}
+
+	f.logger.WithField("controllerID", f.controllerID.String()).Info("registered as active controller")
 
 	tick := time.NewTicker(checkinCadence)
 	defer tick.Stop()
@@ -58,18 +60,18 @@ func (f *flipflop) checkinRoutine(ctx context.Context) {
 	for !stop {
 		select {
 		case <-tick.C:
-			err := registry.ControllerCheckin(f.id)
+			err := registry.ControllerCheckin(f.controllerID)
 			switch err {
 			case nil:
 			case nats.ErrKeyNotFound: // generally means NATS reaped our entry on TTL
-				if err = registry.RegisterController(f.id); err != nil {
+				if err = registry.RegisterController(f.controllerID); err != nil {
 					f.logger.WithError(err).
-						WithField("id", f.id.String()).
+						WithField("id", f.controllerID.String()).
 						Warn("unable to re-register worker")
 				}
 			default:
 				f.logger.WithError(err).
-					WithField("id", f.id.String()).
+					WithField("id", f.controllerID.String()).
 					Warn("worker checkin failed")
 			}
 		case <-ctx.Done():

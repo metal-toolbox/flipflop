@@ -15,6 +15,7 @@ import (
 
 	"go.hollow.sh/toolbox/events"
 	"go.hollow.sh/toolbox/events/pkg/kv"
+	"go.hollow.sh/toolbox/events/registry"
 )
 
 var (
@@ -25,14 +26,14 @@ var (
 	}
 )
 
-type statusKVPublisher struct {
-	facilityCode string
-	workerID     string
+type statusPublisher struct {
 	kv           nats.KeyValue
 	log          *logrus.Logger
+	facilityCode string
+	controllerID registry.ControllerID
 }
 
-func newStatusKVPublisher(s events.Stream, replicaCount int, log *logrus.Logger) *statusKVPublisher {
+func newStatusKVPublisher(s events.Stream, replicaCount int, facility string, controllerID registry.ControllerID, log *logrus.Logger) *statusPublisher {
 	var opts []kv.Option
 	if replicaCount > 1 {
 		opts = append(opts, kv.WithReplicas(replicaCount))
@@ -51,14 +52,20 @@ func newStatusKVPublisher(s events.Stream, replicaCount int, log *logrus.Logger)
 		log.WithError(err).Fatal("unable to bind status KV bucket")
 	}
 
-	return &statusKVPublisher{
-		kv:  statusKV,
-		log: log,
+	return &statusPublisher{
+		kv:           statusKV,
+		facilityCode: facility,
+		log:          log,
+		controllerID: controllerID,
 	}
 }
 
+func statusInfoJSON(s string) json.RawMessage {
+	return []byte(fmt.Sprintf("{%q: %q}", "msg", s))
+}
+
 // Publish publishes the condition status
-func (s *statusKVPublisher) Publish(ctx context.Context, ServerID, conditionID string, lastRevision uint64, payload []byte) (revision uint64) {
+func (s *statusPublisher) Publish(ctx context.Context, serverID, conditionID, status string, state rctypes.State, lastRevision uint64) (revision uint64) {
 	_, span := otel.Tracer(pkgName).Start(
 		ctx,
 		"worker.Publish.KV",
@@ -81,15 +88,15 @@ func (s *statusKVPublisher) Publish(ctx context.Context, ServerID, conditionID s
 		metrics.NATSError("publish-condition-status")
 		span.AddEvent("status publish failure",
 			trace.WithAttributes(
-				attribute.String("workerID", s.workerID),
-				attribute.String("ServerID", ServerID),
+				attribute.String("controllerID", s.controllerID.String()),
+				attribute.String("serverID", serverID),
 				attribute.String("conditionID", conditionID),
 				attribute.String("error", err.Error()),
 			),
 		)
 		s.log.WithError(err).WithFields(logrus.Fields{
-			"workerID":          s.workerID,
-			"ServerID":          ServerID,
+			"controllerID":      s.controllerID,
+			"serverID":          serverID,
 			"assetFacilityCode": s.facilityCode,
 			"conditionID":       conditionID,
 			"lastRev":           lastRevision,
@@ -98,8 +105,8 @@ func (s *statusKVPublisher) Publish(ctx context.Context, ServerID, conditionID s
 	}
 
 	s.log.WithFields(logrus.Fields{
-		"workerID":          s.workerID,
-		"ServerID":          ServerID,
+		"controllerID":      s.controllerID,
+		"serverID":          serverID,
 		"assetFacilityCode": s.facilityCode,
 		"conditionID":       conditionID,
 		"lastRev":           lastRevision,
