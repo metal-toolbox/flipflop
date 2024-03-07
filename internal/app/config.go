@@ -38,12 +38,12 @@ type Configuration struct {
 	// FacilityCode limits this flipflop to events in a facility.
 	FacilityCode string `mapstructure:"facility_code"`
 
-	// The inventory source - one of serverservice OR Yaml
+	// The inventory source - one of fleetdb OR Yaml
 	InventorySource string `mapstructure:"inventory_source"`
 
 	StoreKind model.StoreKind `mapstructure:"store_kind"`
 
-	// FleetDBOptions defines the serverservice client configuration parameters
+	// FleetDBOptions defines the fleetdb client configuration parameters
 	//
 	// This parameter is required when StoreKind is set to fleetdb.
 	FleetDBOptions *FleetDBOptions `mapstructure:"fleetdb"`
@@ -60,7 +60,7 @@ type Configuration struct {
 }
 
 // FleetDBOptions defines configuration for the Serverservice client.
-// https://github.com/metal-toolbox/hollow-serverservice
+// https://github.com/metal-toolbox/fleetdb
 type FleetDBOptions struct {
 	EndpointURL          *url.URL
 	Endpoint             string   `mapstructure:"endpoint"`
@@ -120,7 +120,7 @@ func (a *App) LoadConfiguration(cfgFile string, storeKind model.StoreKind) error
 
 	if storeKind == model.FleetDB {
 		if err := a.envVarServerserviceOverrides(); err != nil {
-			return errors.Wrap(ErrConfig, "serverservice env overrides error:"+err.Error())
+			return errors.Wrap(ErrConfig, "fleetdb env overrides error:"+err.Error())
 		}
 	}
 
@@ -260,7 +260,7 @@ func (a *App) envVarServerserviceOverrides() error {
 
 	endpointURL, err := url.Parse(a.Config.FleetDBOptions.Endpoint)
 	if err != nil {
-		return errors.New("serverservice endpoint URL error: " + err.Error())
+		return errors.New("fleetdb endpoint URL error: " + err.Error())
 	}
 
 	a.Config.FleetDBOptions.EndpointURL = endpointURL
@@ -278,7 +278,7 @@ func (a *App) envVarServerserviceOverrides() error {
 	}
 
 	if a.Config.FleetDBOptions.OidcIssuerEndpoint == "" {
-		return errors.New("serverservice oidc.issuer.endpoint not defined")
+		return errors.New("fleetdb oidc.issuer.endpoint not defined")
 	}
 
 	if a.v.GetString("fleetdb.oidc.audience.endpoint") != "" {
@@ -286,7 +286,7 @@ func (a *App) envVarServerserviceOverrides() error {
 	}
 
 	if a.Config.FleetDBOptions.OidcAudienceEndpoint == "" {
-		return errors.New("serverservice oidc.audience.endpoint not defined")
+		return errors.New("fleetdb oidc.audience.endpoint not defined")
 	}
 
 	if a.v.GetString("fleetdb.oidc.client.secret") != "" {
@@ -310,7 +310,7 @@ func (a *App) envVarServerserviceOverrides() error {
 	}
 
 	if len(a.Config.FleetDBOptions.OidcClientScopes) == 0 {
-		return errors.New("serverservice oidc.client.scopes not defined")
+		return errors.New("fleetdb oidc.client.scopes not defined")
 	}
 
 	return nil

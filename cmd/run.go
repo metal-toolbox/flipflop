@@ -29,7 +29,6 @@ var cmdRun = &cobra.Command{
 
 // run worker command
 var (
-	useStatusKV    bool
 	dryrun         bool
 	faultInjection bool
 	facilityCode   string
@@ -105,7 +104,7 @@ func init() {
 	cmdRun.PersistentFlags().BoolVarP(&dryrun, "dry-run", "", false, "In dryrun mode, the worker actions the task without installing firmware")
 	cmdRun.PersistentFlags().BoolVarP(&faultInjection, "fault-injection", "", false, "Tasks can include a Fault attribute to allow fault injection for development purposes")
 	cmdRun.PersistentFlags().IntVarP(&replicas, "replica-count", "r", 3, "The number of replicas to use for NATS data")
-	cmdRun.PersistentFlags().StringVar(&facilityCode, "facility-code", "", "The facility code this flasher instance is associated with")
+	cmdRun.PersistentFlags().StringVar(&facilityCode, "facility-code", "", "The facility code this flipflop instance is associated with")
 
 	if err := cmdRun.MarkPersistentFlagRequired("facility-code"); err != nil {
 		log.Fatal(err)
