@@ -39,7 +39,6 @@ type App struct {
 
 // New returns returns a new instance of the flipflop app
 func New(storeKind model.StoreKind, cfgFile, loglevel string, profiling bool) (*App, <-chan os.Signal, error) {
-
 	app := &App{
 		v:      viper.New(),
 		Config: &Configuration{},

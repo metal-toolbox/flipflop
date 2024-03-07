@@ -58,6 +58,8 @@ type flipflop struct {
 }
 
 // New returns a cookie flipflop
+//
+// nolint:revive // unexported type is not annoying to use
 func New(
 	facilityCode string,
 	dryrun,
