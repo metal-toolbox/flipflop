@@ -29,9 +29,9 @@ var (
 
 type statusPublisher struct {
 	kv           nats.KeyValue
+	controllerID registry.ControllerID
 	log          *logrus.Logger
 	facilityCode string
-	controllerID registry.ControllerID
 }
 
 func newStatusKVPublisher(s events.Stream, replicaCount int, facility string, controllerID registry.ControllerID, log *logrus.Logger) *statusPublisher {
