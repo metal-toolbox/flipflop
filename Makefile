@@ -16,7 +16,7 @@ REPO := "https://github.com/metal-toolbox/flipflop.git"
 lint: gen-mock
 	golangci-lint run --config .golangci.yml
 
-## Go test
+## Go test and lint
 test: lint
 	CGO_ENABLED=0 go test -timeout 1m -v -covermode=atomic ./...
 
@@ -32,13 +32,13 @@ build-osx:
 ifeq ($(GO_VERSION), 0)
 	$(error build requies go version 1.17.n or higher)
 endif
-	  go build -o flipflop \
-	   -ldflags \
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o flipflop \
+		-ldflags \
 		"-X $(LDFLAG_LOCATION).GitCommit=$(GIT_COMMIT) \
-         -X $(LDFLAG_LOCATION).GitBranch=$(GIT_BRANCH) \
-         -X $(LDFLAG_LOCATION).GitSummary=$(GIT_SUMMARY) \
-         -X $(LDFLAG_LOCATION).AppVersion=$(VERSION) \
-         -X $(LDFLAG_LOCATION).BuildDate=$(BUILD_DATE)"
+		 -X $(LDFLAG_LOCATION).GitBranch=$(GIT_BRANCH) \
+		 -X $(LDFLAG_LOCATION).GitSummary=$(GIT_SUMMARY) \
+		 -X $(LDFLAG_LOCATION).AppVersion=$(VERSION) \
+		 -X $(LDFLAG_LOCATION).BuildDate=$(BUILD_DATE)"
 
 
 ## Build linux bin
@@ -46,13 +46,13 @@ build-linux:
 ifeq ($(GO_VERSION), 0)
 	$(error build requies go version 1.16.n or higher)
 endif
-	GOOS=linux GOARCH=amd64 go build -o flipflop \
-	   -ldflags \
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o flipflop \
+		-ldflags \
 		"-X $(LDFLAG_LOCATION).GitCommit=$(GIT_COMMIT) \
-         -X $(LDFLAG_LOCATION).GitBranch=$(GIT_BRANCH) \
-         -X $(LDFLAG_LOCATION).GitSummary=$(GIT_SUMMARY) \
-         -X $(LDFLAG_LOCATION).AppVersion=$(VERSION) \
-         -X $(LDFLAG_LOCATION).BuildDate=$(BUILD_DATE)"
+		 -X $(LDFLAG_LOCATION).GitBranch=$(GIT_BRANCH) \
+		 -X $(LDFLAG_LOCATION).GitSummary=$(GIT_SUMMARY) \
+		 -X $(LDFLAG_LOCATION).AppVersion=$(VERSION) \
+		 -X $(LDFLAG_LOCATION).BuildDate=$(BUILD_DATE)"
 
 
 ## build docker image and tag as ghcr.io/metal-toolbox/flipflop:latest
