@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	"go.hollow.sh/toolbox/events/registry"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -27,7 +26,7 @@ type TaskHandler struct {
 	bmc         device.Queryor
 }
 
-func NewTaskHandler(task *Task, server *model.Asset, publisher ctrl.Publisher, bmc device.Queryor, controllerID registry.ControllerID, logger *logrus.Logger) *TaskHandler {
+func NewTaskHandler(task *Task, server *model.Asset, publisher ctrl.Publisher, bmc device.Queryor, controllerID string, logger *logrus.Logger) *TaskHandler {
 	taskHandler := &TaskHandler{
 		server:    server,
 		task:      task,

@@ -14,7 +14,6 @@ import (
 	rctypes "github.com/metal-toolbox/rivets/condition"
 	"github.com/sirupsen/logrus"
 	"go.hollow.sh/toolbox/events"
-	"go.hollow.sh/toolbox/events/registry"
 	"go.opentelemetry.io/otel"
 )
 
@@ -28,8 +27,8 @@ type flipflop struct {
 	cfg            *app.Configuration
 	stream         events.Stream
 	store          store.Repository
-	controllerID   registry.ControllerID // assigned when this worker registers itself
 	name           string
+	controllerID   string
 	facilityCode   string
 	dryrun         bool
 	faultInjection bool
@@ -96,6 +95,7 @@ func (f *flipflop) Run(ctx context.Context) {
 		ctrl.WithLogger(f.logger),
 		ctrl.WithConnectionTimeout(f.cfg.NatsOptions.ConnectTimeout),
 	)
+	f.controllerID = nats.ID()
 
 	err := nats.Connect(ctx)
 	if err != nil {
