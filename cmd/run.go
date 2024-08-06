@@ -22,7 +22,7 @@ import (
 var cmdRun = &cobra.Command{
 	Use:   "run",
 	Short: "Run flipflop service to listen for events on NATS and execute on serverState Conditions",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		runWorker(cmd.Context())
 	},
 }
@@ -33,7 +33,6 @@ var (
 	faultInjection bool
 	facilityCode   string
 	storeKind      string
-	replicas       int
 )
 
 var (
@@ -87,11 +86,10 @@ func runWorker(ctx context.Context) {
 		facilityCode,
 		dryrun,
 		faultInjection,
-		theApp.Config.Concurrency,
-		replicas,
 		stream,
 		inv,
 		theApp.Logger,
+		theApp.Config,
 	)
 
 	w.Run(ctx)
@@ -101,7 +99,6 @@ func init() {
 	cmdRun.PersistentFlags().StringVar(&storeKind, "store", "", "Inventory store to lookup asset credentials - fleetdb")
 	cmdRun.PersistentFlags().BoolVarP(&dryrun, "dry-run", "", false, "In dryrun mode, the worker actions the task without installing firmware")
 	cmdRun.PersistentFlags().BoolVarP(&faultInjection, "fault-injection", "", false, "Tasks can include a Fault attribute to allow fault injection for development purposes")
-	cmdRun.PersistentFlags().IntVarP(&replicas, "replica-count", "r", 3, "The number of replicas to use for NATS data")
 	cmdRun.PersistentFlags().StringVar(&facilityCode, "facility-code", "", "The facility code this flipflop instance is associated with")
 
 	if err := cmdRun.MarkPersistentFlagRequired("facility-code"); err != nil {

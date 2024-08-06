@@ -47,7 +47,7 @@ func newFleetDBClientWithOtel(cfg *app.FleetDBOptions, endpoint string, logger *
 	retryableClient := retryablehttp.NewClient()
 
 	// log hook fo 500 errors since the the retryablehttp client masks them
-	logHookFunc := func(l retryablehttp.Logger, r *http.Response) {
+	logHookFunc := func(_ retryablehttp.Logger, r *http.Response) {
 		if r.StatusCode == http.StatusInternalServerError {
 			b, err := io.ReadAll(r.Body)
 			if err != nil {
