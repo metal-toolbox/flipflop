@@ -11,10 +11,6 @@ import (
 
 type Task rctypes.Task[*rctypes.ServerControlTaskParameters, json.RawMessage]
 
-const (
-	TaskVersion = "1.0"
-)
-
 func NewTask(task *rctypes.Task[any, any], faultInjection bool) (*Task, error) {
 	paramsJSON, ok := task.Parameters.(json.RawMessage)
 	if !ok {
