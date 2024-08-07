@@ -8,14 +8,15 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.22"
       - name: Checkout code
         uses: actions/checkout@v4
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           args: --config .golangci.yml --timeout 2m
-          version: v1.52.2
+          version: v1.57.1
+          skip-cache: true
       - name: Test
         run: go test ./...
   build:
@@ -25,7 +26,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.22"
 
       - name: Checkout code
         uses: actions/checkout@v4

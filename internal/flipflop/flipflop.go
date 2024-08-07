@@ -83,7 +83,7 @@ func (f *flipflop) Run(ctx context.Context) {
 		return f
 	}
 
-	nats := ctrl.NewNatsController(
+	nc := ctrl.NewNatsController(
 		model.AppName,
 		f.facilityCode,
 		string(rctypes.ServerControl),
@@ -95,14 +95,15 @@ func (f *flipflop) Run(ctx context.Context) {
 		ctrl.WithLogger(f.logger),
 		ctrl.WithConnectionTimeout(f.cfg.NatsOptions.ConnectTimeout),
 	)
-	f.controllerID = nats.ID()
 
-	err := nats.Connect(ctx)
+	err := nc.Connect(ctx)
 	if err != nil {
 		f.logger.Fatal(err)
 	}
 
-	err = nats.ListenEvents(ctx, handlerFactory)
+	f.controllerID = nc.ID()
+
+	err = nc.ListenEvents(ctx, handlerFactory)
 	if err != nil {
 		f.logger.Fatal(err)
 	}
