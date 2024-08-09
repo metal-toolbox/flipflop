@@ -135,6 +135,8 @@ func (cth *ConditionTaskHandler) Run(ctx context.Context) error {
 		return cth.setPowerState(ctx)
 	case rctypes.SetNextBootDevice:
 		return cth.setNextBootDevice(ctx)
+	case rctypes.ValidateFirmware:
+		return cth.validateFirmware(ctx)
 	default:
 		return cth.failedWithError(ctx, string(cth.task.Parameters.Action), errUnsupportedAction)
 	}
@@ -206,6 +208,55 @@ func (cth *ConditionTaskHandler) setNextBootDevice(ctx context.Context) error {
 	}
 
 	return cth.successful(ctx, "next boot device set successfully: "+cth.task.Parameters.ActionParameter)
+}
+
+func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
+	cth.logger.Info("starting firmware validation")
+
+	deadline := time.Now().Add(cth.task.Parameters.ValidateFirmwareTimeout)
+
+	// First reboot the BMC to ensure it's running the desired firmware
+	if err := cth.bmc.PowerCycleBMC(ctx); err != nil {
+		return cth.failedWithError(ctx, "failed to power cycle BMC", err)
+	}
+
+	var err error
+
+	// Next we want to cycle the host, but the BMC will take some
+	// time to reboot, so retry once every 30 seconds up to our
+	// timeout deadline (ideally we'd have a way to distinguish
+	// failures that are due to the BMC not being back online yet
+	// from ones that aren't going to be resolved by waiting and
+	// retrying...)
+	for time.Now().Before(deadline) {
+		time.Sleep(30 * time.Second)
+		err = cth.bmc.SetPowerState(ctx, "cycle")
+		if err == nil {
+			break
+		}
+	}
+
+	if err != nil {
+		return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", err)
+	}
+
+	// Finally, wait for the host to boot successfully
+	for time.Now().Before(deadline) {
+		// sleep before checking to (hopefully) avoid seeing a
+		// stale POST code from a previous boot before the
+		// power-cycle has actually started happening
+		time.Sleep(30 * time.Second)
+		booted, err := cth.bmc.HostBooted(ctx)
+		if err != nil {
+			return cth.failedWithError(ctx, "failed to retrieve host boot status", err)
+		}
+		if booted {
+			// TODO: record successful result in fleetdb before returning
+			return nil
+		}
+	}
+
+	return cth.failed(ctx, "host failed to boot successfully before deadline")
 }
 
 func (cth *ConditionTaskHandler) publish(ctx context.Context, status string, state rctypes.State) error {

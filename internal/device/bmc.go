@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bmc-toolbox/bmclib/v2"
+	"github.com/bmc-toolbox/bmclib/v2/constants"
 	"github.com/bmc-toolbox/bmclib/v2/providers"
 	logrusrv2 "github.com/bombsimon/logrusr/v2"
 	"github.com/metal-toolbox/flipflop/internal/model"
@@ -136,6 +137,15 @@ func (b *Bmc) PowerCycleBMC(ctx context.Context) error {
 	defer b.tracelog()
 	_, err := b.client.ResetBMC(ctx, "GracefulRestart")
 	return err
+}
+
+func (b *Bmc) HostBooted(ctx context.Context) (bool, error) {
+	defer b.tracelog()
+	status, _, err := b.client.PostCode(ctx)
+	if err != nil {
+		return false, err
+	}
+	return status == constants.POSTStateOS, nil
 }
 
 func (b *Bmc) tracelog() {
