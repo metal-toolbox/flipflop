@@ -13,4 +13,5 @@ type Queryor interface {
 	SetBootDevice(ctx context.Context, device string, persistent, efiBoot bool) error
 	GetBootDevice(ctx context.Context) (device string, persistent, efiBoot bool, err error)
 	PowerCycleBMC(ctx context.Context) error
+	HostBooted(ctx context.Context) (bool, error)
 }

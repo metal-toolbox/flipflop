@@ -120,6 +120,11 @@ func (b *DryRunBMC) PowerCycleBMC(_ context.Context) error {
 	return nil
 }
 
+// HostBooted reports whether or not the device has booted the host OS
+func (b *DryRunBMC) HostBooted(_ context.Context) (bool, error) {
+	return true, nil
+}
+
 // getServer gets a simulateed server state, and update power status and boot device if required
 func (b *DryRunBMC) getServer() (*serverState, error) {
 	server, ok := serverStates[b.id]
