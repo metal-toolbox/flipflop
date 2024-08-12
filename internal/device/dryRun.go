@@ -1,15 +1,41 @@
 package device
 
-import "context"
+import (
+	"context"
+	"errors"
+
+	"github.com/metal-toolbox/flipflop/internal/model"
+)
+
+type serverState struct {
+	power      string
+	bootDevice string
+}
+
+var (
+	errBmcCantFindServer = errors.New("dryrun BMC couldnt find server to set state")
+	serverStates         map[string]serverState
+)
 
 // Bmc is an implementation of the Queryor interface
 type DryRunBMC struct {
-	state string
+	id string
 }
 
-func NewDryRunBMCClient(initialState string) Queryor {
+func NewDryRunBMCClient(asset *model.Asset) Queryor {
+	if serverStates == nil {
+		serverStates = make(map[string]serverState)
+	}
+
+	state, ok := serverStates[asset.ID.String()]
+	if !ok {
+		state.power = "on"
+		state.bootDevice = "disk"
+		serverStates[asset.ID.String()] = state
+	}
+
 	return &DryRunBMC{
-		state: initialState,
+		asset.ID.String(),
 	}
 }
 
@@ -25,13 +51,24 @@ func (b *DryRunBMC) Close(_ context.Context) error {
 
 // GetPowerState returns the device power status
 func (b *DryRunBMC) GetPowerState(_ context.Context) (string, error) {
-	return b.state, nil
+	state, ok := serverStates[b.id]
+	if ok {
+		return state.power, nil
+	}
+
+	return "unknown", nil
 }
 
 // SetPowerState sets the given power state on the device
 func (b *DryRunBMC) SetPowerState(_ context.Context, state string) error {
-	b.state = state
-	return nil
+	serverState, ok := serverStates[b.id]
+	if ok {
+		serverState.power = state
+		serverStates[b.id] = serverState
+		return nil
+	}
+
+	return errBmcCantFindServer
 }
 
 // SetBootDevice simulates setting the boot device of the remote device
