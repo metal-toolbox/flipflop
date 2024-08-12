@@ -1,0 +1,9 @@
+apiVersion: v2
+name: flipflop
+description: A chart to control BMCs
+version: v0.1.0
+keywords:
+  - bmc
+home: "https://github.com/metal-toolbox/flipflop"
+sources:
+  - "https://github.com/metal-toolbox/flipflop"

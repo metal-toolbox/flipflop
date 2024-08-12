@@ -1,0 +1,55 @@
+name: Release Charts
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      CHART_NAME: flipflop
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.CHART_NAME }}
+          fetch-depth: 0
+      -
+        name: Checkout Helm chart Repo
+        uses: actions/checkout@v4
+        with:
+          repository: metal-toolbox/${{ env.CHART_NAME }}
+          path: helm-charts
+          ref: gh-pages
+          fetch-depth: 0
+      -
+        name: Install Helm
+        uses: azure/setup-helm@v4.2.0
+      -
+        name: Package Helm Chart
+        run: |
+          helm package --version ${{ github.ref_name }} ./${{ env.CHART_NAME }}/chart -u -d ./helm-charts/
+          helm repo index ./helm-charts/ --url https://metal-toolbox.github.io/${{ env.CHART_NAME }}/
+      -
+        name: Create Git Commit
+        run: |
+          cd helm-charts
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git add index.yaml *.tgz
+          git commit -m "published ${{ env.CHART_NAME }}-${{ github.ref_name }}.tgz"
+      -
+        name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          repository: metal-toolbox/${{ env.CHART_NAME }}
+          directory: helm-charts
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
