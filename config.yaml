@@ -1,0 +1,43 @@
+facility: sandbox
+log_level: debug
+namespace: default
+store_kind: fleetdb
+endpoints:
+  conditionorc:
+    authenticate: true
+    oidc_audience_url:
+    oidc_client_id:
+    oidc_issuer_url:
+    oidc_scopes:
+    url: http://conditionorc-api:9001
+  fleetdb:
+    authenticate: true
+    oidc_audience_url:
+    oidc_client_id:
+    oidc_issuer_url:
+    oidc_scopes:
+    url: http://fleetdb:8000
+  nats:
+    app_name: flipflop
+    connection_timeout: 60s
+    consumer:
+      ack_wait: 5m
+      max_ack_pending: 10
+      pull: true
+      queue_group: flipflop
+    creds:
+      file: /etc/nats/nats.creds
+    kv_replication: 1
+    stream:
+      acknowledgements: true
+      duplicate_window: 5m
+      name: controllers
+      retention: workQueue
+      subjects:
+      - com.hollow.sh.controllers.commands.>
+      - com.hollow.sh.controllers.responses.>
+    stream_urn_ns: hollow-controllers
+    url: nats://nats:4222
+  otel:
+    authenticate: false
+    url: jaeger:4317

@@ -1,4 +1,4 @@
-package worker
+package flipflop
 
 import (
 	"encoding/json"

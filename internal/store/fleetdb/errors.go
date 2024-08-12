@@ -10,4 +10,5 @@ var (
 	ErrServerServiceObject          = errors.New("serverService object error")
 	ErrChangeList                   = errors.New("error building change list")
 	ErrServerServiceAttrObject      = errors.New("error in server service attribute object")
+	ErrFleetDBConfig                = errors.New("fleetdb configuration error")
 )

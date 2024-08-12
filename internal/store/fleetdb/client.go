@@ -9,8 +9,6 @@ import (
 
 	"github.com/coreos/go-oidc"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/metal-toolbox/flipflop/internal/app"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2/clientcredentials"
@@ -20,29 +18,25 @@ import (
 
 var (
 	// timeout for requests made by this client.
-	timeout   = 30 * time.Second
-	ErrConfig = errors.New("error in fleetdb client configuration")
+	timeout = 30 * time.Second
 )
 
 // NewFleetDBClient instantiates and returns a serverService client
-func NewFleetDBClient(ctx context.Context, cfg *app.FleetDBOptions, logger *logrus.Logger) (*fleetdbapi.Client, error) {
-	if cfg == nil {
-		return nil, errors.Wrap(ErrConfig, "configuration is nil")
+func NewFleetDBClient(ctx context.Context, cfg *Config, logger *logrus.Logger) (*fleetdbapi.Client, error) {
+	err := cfg.validate()
+	if err != nil {
+		return nil, err
 	}
 
-	if cfg.DisableOAuth {
-		return newFleetDBClientWithOtel(cfg, cfg.Endpoint, logger)
+	if cfg.Authenticate {
+		return newFleetDBClientWithOAuthOtel(ctx, cfg, logger)
 	}
 
-	return newFleetDBClientWithOAuthOtel(ctx, cfg, cfg.Endpoint, logger)
+	return newFleetDBClientWithOtel(cfg, logger)
 }
 
 // returns a fleetdb retryable client with Otel
-func newFleetDBClientWithOtel(cfg *app.FleetDBOptions, endpoint string, logger *logrus.Logger) (*fleetdbapi.Client, error) {
-	if cfg == nil {
-		return nil, errors.Wrap(ErrConfig, "configuration is nil")
-	}
-
+func newFleetDBClientWithOtel(cfg *Config, logger *logrus.Logger) (*fleetdbapi.Client, error) {
 	// init retryable http client
 	retryableClient := retryablehttp.NewClient()
 
@@ -70,17 +64,13 @@ func newFleetDBClientWithOtel(cfg *app.FleetDBOptions, endpoint string, logger *
 
 	return fleetdbapi.NewClientWithToken(
 		"dummy",
-		endpoint,
+		cfg.URL,
 		client,
 	)
 }
 
 // returns a fleetdb retryable http client with Otel and Oauth wrapped in
-func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *app.FleetDBOptions, endpoint string, logger *logrus.Logger) (*fleetdbapi.Client, error) {
-	if cfg == nil {
-		return nil, errors.Wrap(ErrConfig, "configuration is nil")
-	}
-
+func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *Config, logger *logrus.Logger) (*fleetdbapi.Client, error) {
 	logger.Info("fleetdb client ctor")
 
 	// init retryable http client
@@ -90,7 +80,7 @@ func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *app.FleetDBOptions,
 	retryableClient.HTTPClient = otelhttp.DefaultClient
 
 	// setup oidc provider
-	provider, err := oidc.NewProvider(ctx, cfg.OidcIssuerEndpoint)
+	provider, err := oidc.NewProvider(ctx, cfg.OidcIssuerURL)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +98,7 @@ func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *app.FleetDBOptions,
 		ClientSecret:   cfg.OidcClientSecret,
 		TokenURL:       provider.Endpoint().TokenURL,
 		Scopes:         cfg.OidcClientScopes,
-		EndpointParams: url.Values{"audience": []string{cfg.OidcAudienceEndpoint}},
+		EndpointParams: url.Values{"audience": []string{cfg.OidcAudienceURL}},
 	}
 
 	// wrap OAuth transport, cookie jar in the retryable client
@@ -123,7 +113,7 @@ func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *app.FleetDBOptions,
 
 	return fleetdbapi.NewClientWithToken(
 		cfg.OidcClientSecret,
-		endpoint,
+		cfg.URL,
 		client,
 	)
 }
