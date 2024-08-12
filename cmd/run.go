@@ -11,9 +11,9 @@ import (
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store"
 	"github.com/metal-toolbox/flipflop/internal/version"
+	"github.com/metal-toolbox/rivets/events"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"go.hollow.sh/toolbox/events"
 
 	// nolint:gosec // profiling endpoint listens on localhost.
 	_ "net/http/pprof"
@@ -31,8 +31,6 @@ var cmdRun = &cobra.Command{
 var (
 	dryrun         bool
 	faultInjection bool
-	facilityCode   string
-	storeKind      string
 )
 
 var (
@@ -41,7 +39,6 @@ var (
 
 func runWorker(ctx context.Context) {
 	theApp, termCh, err := app.New(
-		model.StoreKind(storeKind),
 		cfgFile,
 		logLevel,
 		enableProfiling,
@@ -49,6 +46,10 @@ func runWorker(ctx context.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Override config with command line args
+	theApp.Config.Dryrun = dryrun
+	theApp.Config.FaultInjection = faultInjection
 
 	// serve metrics endpoint
 	metrics.ListenAndServe()
@@ -69,45 +70,31 @@ func runWorker(ctx context.Context) {
 
 	inv, err := store.NewRepository(
 		ctx,
-		theApp.Config.StoreKind,
-		theApp.Config,
+		model.StoreKind(theApp.Config.StoreKind),
+		&theApp.Config.Endpoints.FleetDB,
 		theApp.Logger,
 	)
 	if err != nil {
 		theApp.Logger.Fatal(err)
 	}
 
-	stream, err := events.NewStream(*theApp.Config.NatsOptions)
+	stream, err := events.NewStream(theApp.Config.Endpoints.Nats)
 	if err != nil {
 		theApp.Logger.Fatal(err)
 	}
 
-	w := flipflop.New(
-		facilityCode,
-		dryrun,
-		faultInjection,
+	ff := flipflop.New(
 		stream,
 		inv,
 		theApp.Logger,
 		theApp.Config,
 	)
 
-	w.Run(ctx)
+	ff.Run(ctx)
 }
 
 func init() {
-	cmdRun.PersistentFlags().StringVar(&storeKind, "store", "", "Inventory store to lookup asset credentials - fleetdb")
 	cmdRun.PersistentFlags().BoolVarP(&dryrun, "dry-run", "", false, "In dryrun mode, the worker actions the task without installing firmware")
 	cmdRun.PersistentFlags().BoolVarP(&faultInjection, "fault-injection", "", false, "Tasks can include a Fault attribute to allow fault injection for development purposes")
-	cmdRun.PersistentFlags().StringVar(&facilityCode, "facility-code", "", "The facility code this flipflop instance is associated with")
-
-	if err := cmdRun.MarkPersistentFlagRequired("facility-code"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := cmdRun.MarkPersistentFlagRequired("store"); err != nil {
-		log.Fatal(err)
-	}
-
 	rootCmd.AddCommand(cmdRun)
 }

@@ -7,7 +7,6 @@ import (
 	"net"
 
 	"github.com/google/uuid"
-	"github.com/metal-toolbox/flipflop/internal/app"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -29,11 +28,11 @@ var (
 type Store struct {
 	api    *fleetdbapi.Client
 	logger *logrus.Logger
-	config *app.FleetDBOptions
+	config *Config
 }
 
 // NewStore returns a fleetdb store queryor to lookup and publish assets to, from the store.
-func New(ctx context.Context, cfg *app.FleetDBOptions, logger *logrus.Logger) (*Store, error) {
+func New(ctx context.Context, cfg *Config, logger *logrus.Logger) (*Store, error) {
 	apiclient, err := NewFleetDBClient(ctx, cfg, logger)
 	if err != nil {
 		return nil, err

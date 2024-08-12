@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 
-	"github.com/metal-toolbox/flipflop/internal/app"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store/fleetdb"
 	"github.com/pkg/errors"
@@ -15,10 +14,10 @@ type Repository interface {
 	AssetByID(ctx context.Context, assetID string) (*model.Asset, error)
 }
 
-func NewRepository(ctx context.Context, storeKind model.StoreKind, cfg *app.Configuration, logger *logrus.Logger) (Repository, error) {
+func NewRepository(ctx context.Context, storeKind model.StoreKind, cfg *fleetdb.Config, logger *logrus.Logger) (Repository, error) {
 	switch storeKind {
 	case model.FleetDB:
-		return fleetdb.New(ctx, cfg.FleetDBOptions, logger)
+		return fleetdb.New(ctx, cfg, logger)
 	case model.MockDB:
 	}
 
