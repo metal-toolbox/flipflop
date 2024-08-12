@@ -1,0 +1,53 @@
+enable: true
+image:
+  pullPolicy: Always
+  repository:
+    tag: latest
+    url: localhost:5001
+env:
+  namespace: default
+  facility: sandbox
+  log_level: debug
+  dryrun: true
+  fault_injection: false
+  store_kind: fleetdb
+  endpoints:
+    nats:
+      url: nats://nats:4222
+      creds_file: /etc/nats/nats.creds
+      connection_timeout: 60s
+      kv_replication: 1
+      app_name: flipflop
+      # TODO: remove deprecated stream_urn_ns field
+      stream_urn_ns: hollow-controllers
+      consumer:
+        name: sandbox-flipflop
+        pull: true
+        ack_wait: 5m
+        max_ack_pending: 10
+        queue_group: flipflop
+      stream:
+        name: controllers
+        subjects:
+          - com.hollow.sh.controllers.commands.>
+          - com.hollow.sh.controllers.responses.>
+        acknowledgements: true
+        duplicate_window: 5m
+        retention: workQueue
+    otel:
+      url: jaeger:4317
+      authenticate: false
+    fleetdb:
+      authenticate: true
+      url: http://fleetdb:8000
+      oidc_audience_url: # to be filled by parent helm chart if authenticate is true
+      oidc_issuer_url:   # to be filled by parent helm chart if authenticate is true
+      oidc_client_id: # to be filled by parent helm chart if authenticate is true
+      oidc_scopes:    # to be filled by parent helm chart if authenticate is true
+    conditionorc:
+      authenticate: true
+      url: http://conditionorc-api:9001
+      oidc_audience_url: # to be filled by parent helm chart if authenticate is true
+      oidc_issuer_url:   # to be filled by parent helm chart if authenticate is true
+      oidc_client_id: # to be filled by parent helm chart if authenticate is true
+      oidc_scopes:    # to be filled by parent helm chart if authenticate is true
