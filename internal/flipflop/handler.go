@@ -111,6 +111,7 @@ func (cth *ConditionTaskHandler) Run(ctx context.Context) error {
 	)
 	defer span.End()
 
+	cth.startTS = time.Now()
 	cth.logger.Info("running condition action")
 
 	err := cth.publishActive(ctx, "running condition action")
