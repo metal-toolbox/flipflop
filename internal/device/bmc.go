@@ -89,7 +89,9 @@ func (b *Bmc) SetPowerState(ctx context.Context, state string) error {
 	return err
 }
 
-// SetBootDevice simulates setting the boot device of the remote device
+// SetBootDevice sets the boot device of the remote device, and validates it was set
+//
+//nolint:gocritic // its a TODO
 func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiBoot bool) error {
 	ok, err := b.client.SetBootDevice(ctx, device, persistent, efiBoot)
 	if err != nil {
@@ -99,6 +101,25 @@ func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiB
 	if !ok {
 		return errors.New("setting boot device failed")
 	}
+
+	// Now lets validate the boot device order
+	// TODO; This is a WIP. We do not know yet if This is the right bmc call to get boot device
+	// override, err := b.client.GetBootDeviceOverride(ctx)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// if device != string(override.Device) {
+	// 	return errors.New("setting boot device failed to propagate")
+	// }
+
+	// if efiBoot != override.IsEFIBoot {
+	// 	return errors.New("setting boot device EFI boot failed to propagate")
+	// }
+
+	// if persistent != override.IsPersistent {
+	// 	return errors.New("setting boot device Persistent boot failed to propagate")
+	// }
 
 	return nil
 }
