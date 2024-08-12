@@ -124,7 +124,7 @@ func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiB
 	return nil
 }
 
-// PowerCycleBMC simulates a power cycle action on the BMC of the remote device
+// PowerCycleBMC sets a power cycle action on the BMC of the remote device
 func (b *Bmc) PowerCycleBMC(ctx context.Context) error {
 	defer b.tracelog()
 	_, err := b.client.ResetBMC(ctx, "GracefulRestart")
