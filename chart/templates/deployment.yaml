@@ -20,7 +20,7 @@ spec:
       containers:
         - name: flipflop
           image: {{ .Values.image.repository.url }}/flipflop:{{ .Values.image.repository.tag }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [
            "flipflop",
            "run",
@@ -28,9 +28,13 @@ spec:
            "/etc/flipflop/config.yaml",
            "--enable-pprof",
            "--log-level",
-           "debug",
+           "{{- .Values.env.log_level -}}",
+           {{- if .Values.env.fault_injection -}}
            "--fault-injection",
+           {{- end -}}
+           {{- if .Values.env.dryrun -}}
            "--dry-run",
+           {{- end -}}
           ]
           volumeMounts:
             - name: config-volume
@@ -39,7 +43,7 @@ spec:
               mountPath: /etc/nats
               readOnly: true
           env:
-          {{- if $.Values.env.endpoints.fleetdb.authenticate }}
+          {{- if .Values.env.endpoints.fleetdb.authenticate }}
             - name: FLIPFLOP_ENDPOINTS_FLEETDB_OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
