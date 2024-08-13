@@ -14,7 +14,7 @@ type serverState struct {
 
 var (
 	errBmcCantFindServer = errors.New("dryrun BMC couldnt find server to set state")
-	serverStates         map[string]serverState
+	serverStates         = make(map[string]serverState)
 )
 
 // Bmc is an implementation of the Queryor interface
@@ -23,10 +23,6 @@ type DryRunBMC struct {
 }
 
 func NewDryRunBMCClient(asset *model.Asset) Queryor {
-	if serverStates == nil {
-		serverStates = make(map[string]serverState)
-	}
-
 	state, ok := serverStates[asset.ID.String()]
 	if !ok {
 		state.power = "on"
