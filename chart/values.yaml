@@ -9,7 +9,7 @@ env:
   facility: sandbox
   log_level: debug
   dryrun: true
-  fault_injection: false
+  fault_injection: true
   store_kind: fleetdb
   endpoints:
     nats:
