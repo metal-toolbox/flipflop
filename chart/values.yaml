@@ -10,7 +10,6 @@ env:
   log_level: debug
   dryrun: true
   fault_injection: true
-  store_kind: fleetdb
   endpoints:
     nats:
       url: nats://nats:4222
