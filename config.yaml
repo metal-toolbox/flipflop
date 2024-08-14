@@ -1,7 +1,6 @@
 facility: sandbox
 log_level: debug
 namespace: default
-store_kind: fleetdb
 endpoints:
   fleetdb:
     authenticate: true

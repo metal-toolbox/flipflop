@@ -27,8 +27,6 @@ type Configuration struct {
 	// one of - info, debug, trace
 	LogLevel string `mapstructure:"log_level"`
 
-	StoreKind string `mapstructure:"store_kind"`
-
 	// Holds all endpoints
 	Endpoints Endpoints `mapstructure:"endpoints"`
 
