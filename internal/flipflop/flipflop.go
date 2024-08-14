@@ -65,7 +65,7 @@ func (f *flipflop) Run(ctx context.Context) {
 			"faultInjection": f.cfg.FaultInjection,
 		},
 	)
-	loggerEntry.Info("flipflip running")
+	loggerEntry.Info("flipflop running")
 
 	nc := ctrl.NewNatsController(
 		model.AppName,
