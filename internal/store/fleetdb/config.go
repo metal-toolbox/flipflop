@@ -37,7 +37,7 @@ func (cfg *Config) validate() error {
 	}
 
 	if cfg.OidcIssuerURL == "" {
-		return errors.Wrap(ErrFleetDBConfig, "oidc url was empty")
+		return errors.Wrap(ErrFleetDBConfig, "oidc issuer url was empty")
 	}
 
 	if cfg.OidcClientSecret == "" {
