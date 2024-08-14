@@ -70,7 +70,7 @@ func runWorker(ctx context.Context) {
 
 	inv, err := store.NewRepository(
 		ctx,
-		model.StoreKind(theApp.Config.StoreKind),
+		model.FleetDB,
 		&theApp.Config.Endpoints.FleetDB,
 		theApp.Logger,
 	)
