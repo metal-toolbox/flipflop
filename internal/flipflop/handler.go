@@ -82,7 +82,7 @@ func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctype
 
 	var bmc device.Queryor
 	if cth.cfg.Dryrun { // Fake BMC
-		bmc = device.NewDryRunBMCClient("on")
+		bmc = device.NewDryRunBMCClient(server)
 		loggerEntry.Warn("Running BMC Device in Dryrun mode")
 	} else {
 		bmc = device.NewBMCClient(server, loggerEntry)

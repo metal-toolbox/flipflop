@@ -27,8 +27,9 @@ const (
 )
 
 var (
-	errBMCLogin  = errors.New("bmc login error")
-	errBMCLogout = errors.New("bmc logout error")
+	errBMCLogin          = errors.New("bmc login error")
+	errBMCLogout         = errors.New("bmc logout error")
+	errBMCNotImplemented = errors.New("method not implemented")
 )
 
 // Bmc is an implementation of the Queryor interface
@@ -38,6 +39,7 @@ type Bmc struct {
 	logger *logrus.Entry
 }
 
+// NewBMCClient creates a new Queryor interface for a BMC
 func NewBMCClient(asset *model.Asset, logger *logrus.Entry) Queryor {
 	client := newBmclibClient(asset, logger)
 
@@ -122,6 +124,11 @@ func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiB
 	// }
 
 	return nil
+}
+
+// GetBootDevice gets the boot device information of the remote device
+func (b *Bmc) GetBootDevice(_ context.Context) (device string, persistent, efiBoot bool, err error) {
+	return "", false, false, errors.Wrap(errBMCNotImplemented, "GetBootDevice")
 }
 
 // PowerCycleBMC sets a power cycle action on the BMC of the remote device
