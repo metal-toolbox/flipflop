@@ -3,7 +3,7 @@ log_level: debug
 namespace: default
 endpoints:
   fleetdb:
-    authenticate: true
+    authenticate: false
     oidc_audience_url:
     oidc_client_id:
     oidc_issuer_url:
