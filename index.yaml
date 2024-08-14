@@ -2,7 +2,20 @@ apiVersion: v1
 entries:
   flipflop:
   - apiVersion: v2
-    created: "2024-08-14T18:30:01.696896512Z"
+    created: "2024-08-14T19:05:41.946748168Z"
+    description: A chart to control BMCs
+    digest: 051d5084dba7fba387d25f74f36ac79288dd1bc5dbf76ca8c86e866cafa5ad04
+    home: https://github.com/metal-toolbox/flipflop
+    keywords:
+    - bmc
+    name: flipflop
+    sources:
+    - https://github.com/metal-toolbox/flipflop
+    urls:
+    - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.2.tgz
+    version: v0.0.2
+  - apiVersion: v2
+    created: "2024-08-14T19:05:41.946392757Z"
     description: A chart to control BMCs
     digest: 481db501152c85894d0be70b6a62f3f8e675fabfd1035af82d15db4d93004b60
     home: https://github.com/metal-toolbox/flipflop
@@ -14,4 +27,4 @@ entries:
     urls:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.1.tgz
     version: v0.0.1
-generated: "2024-08-14T18:30:01.696482468Z"
+generated: "2024-08-14T19:05:41.945865476Z"
