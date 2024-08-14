@@ -50,7 +50,7 @@ type Endpoints struct {
 	FleetDB fleetdb.Config `mapstructure:"fleetdb"`
 }
 
-func (a *App) LoadConfiguration(cfgFilePath string) error {
+func (a *App) LoadConfiguration(cfgFilePath, loglevel string) error {
 	cfg := &Configuration{}
 	a.Config = cfg
 
@@ -62,6 +62,10 @@ func (a *App) LoadConfiguration(cfgFilePath string) error {
 	err := a.ReadInFile(cfg, cfgFilePath)
 	if err != nil {
 		return err
+	}
+
+	if loglevel != "" {
+		a.Config.LogLevel = loglevel
 	}
 
 	return a.Config.validate()

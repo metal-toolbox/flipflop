@@ -45,12 +45,8 @@ func New(cfgFile, loglevel string, profiling bool) (*App, <-chan os.Signal, erro
 		Logger: logrus.New(),
 	}
 
-	if err := app.LoadConfiguration(cfgFile); err != nil {
+	if err := app.LoadConfiguration(cfgFile, loglevel); err != nil {
 		return nil, nil, err
-	}
-
-	if loglevel != "" {
-		app.Config.LogLevel = loglevel
 	}
 
 	switch model.LogLevel(loglevel) {
