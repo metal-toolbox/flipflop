@@ -3,13 +3,6 @@ log_level: debug
 namespace: default
 store_kind: fleetdb
 endpoints:
-  conditionorc:
-    authenticate: true
-    oidc_audience_url:
-    oidc_client_id:
-    oidc_issuer_url:
-    oidc_scopes:
-    url: http://conditionorc-api:9001
   fleetdb:
     authenticate: true
     oidc_audience_url:
