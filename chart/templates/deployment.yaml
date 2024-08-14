@@ -48,7 +48,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: flipflop-secrets
-                  key: flipflop-oidc-client-secret # TODO; INCORRECT NAME
+                  key: fleetdb-oidc-client-secret
           {{- end }}
           securityContext:
             capabilities:
