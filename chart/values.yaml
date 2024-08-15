@@ -5,7 +5,6 @@ image:
     tag: latest
     url: localhost:5001
 env:
-  namespace: default
   facility: sandbox
   log_level: debug
   dryrun: true
