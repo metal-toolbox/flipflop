@@ -132,9 +132,14 @@ func (cth *ConditionTaskHandler) Run(ctx context.Context) error {
 	case rctypes.PowerCycleBMC:
 		return cth.powerCycleBMC(ctx)
 	case rctypes.SetPowerState:
-		return cth.setPowerState(ctx)
+		return cth.setPowerState(ctx, cth.task.Parameters.ActionParameter)
 	case rctypes.SetNextBootDevice:
-		return cth.setNextBootDevice(ctx)
+		return cth.setNextBootDevice(
+			ctx,
+			cth.task.Parameters.ActionParameter,
+			cth.task.Parameters.SetNextBootDevicePersistent,
+			cth.task.Parameters.SetNextBootDeviceEFI,
+		)
 	case rctypes.ValidateFirmware:
 		return cth.validateFirmware(ctx)
 	default:
@@ -160,7 +165,7 @@ func (cth *ConditionTaskHandler) powerCycleBMC(ctx context.Context) error {
 	return cth.successful(ctx, "BMC power cycled successfully")
 }
 
-func (cth *ConditionTaskHandler) setPowerState(ctx context.Context) error {
+func (cth *ConditionTaskHandler) setPowerState(ctx context.Context, newState string) error {
 	// identify current power state
 	state, err := cth.bmc.GetPowerState(ctx)
 	if err != nil {
@@ -173,7 +178,7 @@ func (cth *ConditionTaskHandler) setPowerState(ctx context.Context) error {
 	}
 
 	// for a power cycle - if a server is powered off, invoke power on instead of cycle
-	if cth.task.Parameters.ActionParameter == "cycle" && strings.Contains(strings.ToLower(state), "off") {
+	if newState == "cycle" && strings.Contains(strings.ToLower(state), "off") {
 		err = cth.publishActive(ctx, "server was powered off, powering on")
 		if err != nil {
 			return err
@@ -187,7 +192,7 @@ func (cth *ConditionTaskHandler) setPowerState(ctx context.Context) error {
 		return cth.successful(ctx, "server powered on successfully")
 	}
 
-	err = cth.bmc.SetPowerState(ctx, cth.task.Parameters.ActionParameter)
+	err = cth.bmc.SetPowerState(ctx, newState)
 	if err != nil {
 		return cth.failedWithError(ctx, "", err)
 	}
@@ -195,19 +200,19 @@ func (cth *ConditionTaskHandler) setPowerState(ctx context.Context) error {
 	return cth.successful(ctx, "server power state set successful: "+cth.task.Parameters.ActionParameter)
 }
 
-func (cth *ConditionTaskHandler) setNextBootDevice(ctx context.Context) error {
+func (cth *ConditionTaskHandler) setNextBootDevice(ctx context.Context, bootDevice string, persistent, efi bool) error {
 	cth.logger.WithFields(
 		logrus.Fields{
-			"persistent": cth.task.Parameters.SetNextBootDevicePersistent,
-			"efi":        cth.task.Parameters.SetNextBootDeviceEFI,
-		}).Info("setting next boot device to: " + cth.task.Parameters.ActionParameter)
+			"persistent": persistent,
+			"efi":        efi,
+		}).Info("setting next boot device to: " + bootDevice)
 
-	err := cth.bmc.SetBootDevice(ctx, cth.task.Parameters.ActionParameter, cth.task.Parameters.SetNextBootDevicePersistent, cth.task.Parameters.SetNextBootDeviceEFI)
+	err := cth.bmc.SetBootDevice(ctx, bootDevice, persistent, efi)
 	if err != nil {
 		return cth.failedWithError(ctx, "error setting next boot device", err)
 	}
 
-	return cth.successful(ctx, "next boot device set successfully: "+cth.task.Parameters.ActionParameter)
+	return cth.successful(ctx, "next boot device set successfully: "+bootDevice)
 }
 
 func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
