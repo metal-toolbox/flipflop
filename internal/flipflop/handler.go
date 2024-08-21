@@ -142,6 +142,8 @@ func (cth *ConditionTaskHandler) Run(ctx context.Context) error {
 		)
 	case rctypes.ValidateFirmware:
 		return cth.validateFirmware(ctx)
+	case rctypes.PxeBootPersistent:
+		return cth.pxeBootPersistent(ctx)
 	default:
 		return cth.failedWithError(ctx, string(cth.task.Parameters.Action), errUnsupportedAction)
 	}
@@ -234,7 +236,10 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 	// from ones that aren't going to be resolved by waiting and
 	// retrying...)
 	for time.Now().Before(deadline) {
-		time.Sleep(30 * time.Second)
+		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
+			return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", errDelay)
+		}
+
 		err = cth.bmc.SetPowerState(ctx, "cycle")
 		if err == nil {
 			break
@@ -250,7 +255,10 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 		// sleep before checking to (hopefully) avoid seeing a
 		// stale POST code from a previous boot before the
 		// power-cycle has actually started happening
-		time.Sleep(30 * time.Second)
+		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
+			return cth.failedWithError(ctx, "failed to retrieve host boot status", errDelay)
+		}
+
 		booted, err := cth.bmc.HostBooted(ctx)
 		if err != nil {
 			return cth.failedWithError(ctx, "failed to retrieve host boot status", err)
@@ -264,6 +272,24 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 	return cth.failed(ctx, "host failed to boot successfully before deadline")
 }
 
+func sleepInContext(ctx context.Context, t time.Duration) error {
+	select {
+	case <-time.After(t):
+		return nil
+	case <-ctx.Done():
+		return context.Canceled
+	}
+}
+
+// pxeBootPersistent sets up the server to pxe boot persistently
+func (cth *ConditionTaskHandler) pxeBootPersistent(ctx context.Context) error {
+	if err := cth.setNextBootDevice(ctx, "pxe", true, true); err != nil {
+		return err
+	}
+
+	return cth.bmc.SetPowerState(ctx, "on")
+}
+
 func (cth *ConditionTaskHandler) publish(ctx context.Context, status string, state rctypes.State) error {
 	cth.task.State = state
 	cth.task.Status.Append(status)
@@ -272,6 +298,10 @@ func (cth *ConditionTaskHandler) publish(ctx context.Context, status string, sta
 	if err != nil {
 		cth.logger.WithError(errTaskConv).Error()
 		return err
+	}
+
+	if errDelay := sleepInContext(ctx, 10*time.Second); errDelay != nil {
+		return context.Canceled
 	}
 
 	return cth.publisher.Publish(ctx,
