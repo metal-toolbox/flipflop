@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/metal-toolbox/ctrl v0.2.1
 	github.com/metal-toolbox/fleetdb v1.19.3
-	github.com/metal-toolbox/rivets v1.3.0
+	github.com/metal-toolbox/rivets v1.3.2-0.20240821095555-56f1bf4b1a29
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.19.1
