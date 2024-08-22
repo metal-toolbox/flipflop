@@ -2,12 +2,14 @@ package app
 
 import (
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store/fleetdb"
 	"github.com/metal-toolbox/rivets/events"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -54,6 +56,7 @@ func (a *App) LoadConfiguration(cfgFilePath, loglevel string) error {
 	cfg := &Configuration{}
 	a.Config = cfg
 
+	setConfigDefaults(a.v, cfg, "", ".")
 	a.v.SetConfigType("yaml")
 	a.v.SetEnvPrefix(model.AppName)
 	a.v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -121,4 +124,42 @@ func (cfg *Configuration) validate() error {
 	}
 
 	return nil
+}
+
+// setConfigDefaults sets all values in the struct to empty. This is to get around a weird quirk of viper.
+// Viper will not override from a ENV variable if the value isnt set first.
+// Resulting in ENV variables never getting loaded in if they arent in the config.yaml, even empty in the config.
+// https://github.com/spf13/viper/issues/584#issuecomment-1210957041
+func setConfigDefaults(v *viper.Viper, i interface{}, parent, delim string) error {
+	// Retrieve the underlying type of variable `i`.
+	r := reflect.TypeOf(i)
+
+	// If `i` is of type pointer, retrieve the referenced type.
+	if r.Kind() == reflect.Ptr {
+		r = r.Elem()
+	}
+
+	// Iterate over each field for the type. By default, there is a single field.
+	for i := 0; i < r.NumField(); i++ {
+		// Retrieve the current field and get the `mapstructure` tag.
+		f := r.Field(i)
+		env := f.Tag.Get("mapstructure")
+
+		// By default, set the key to the current tag value. If a parent value was passed in
+		//	prepend the parent and the delimiter.
+		if parent != "" {
+			env = parent + delim + env
+		}
+
+		// If it's a struct, only bind properties.
+		if f.Type.Kind() == reflect.Struct {
+			t := reflect.New(f.Type).Elem().Interface()
+			setConfigDefaults(v, t, env, delim)
+			continue
+		}
+
+		// Bind the environment variable.
+		v.SetDefault(env, nil)
+	}
+	return v.Unmarshal(i)
 }
