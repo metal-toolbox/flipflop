@@ -7,20 +7,21 @@ endpoints:
     oidc_audience_url:
     oidc_client_id:
     oidc_issuer_url:
-    oidc_scopes:
+    oidc_client_scopes:
     url: http://fleetdb:8000
   nats:
     app_name: flipflop
     connection_timeout: 60s
     consumer:
+      name: flipflop
       ack_wait: 5m
       max_ack_pending: 10
       pull: true
       queue_group: flipflop
-    creds:
-      file: /etc/nats/nats.creds
+    creds_file: /etc/nats/nats.creds
     kv_replication: 1
     stream:
+      user: flipflop
       acknowledgements: true
       duplicate_window: 5m
       name: controllers
