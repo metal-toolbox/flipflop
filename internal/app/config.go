@@ -56,13 +56,17 @@ func (a *App) LoadConfiguration(cfgFilePath, loglevel string) error {
 	cfg := &Configuration{}
 	a.Config = cfg
 
-	setConfigDefaults(a.v, cfg, "", ".")
+	err := setConfigDefaults(a.v, cfg, "", ".")
+	if err != nil {
+		return err
+	}
+
 	a.v.SetConfigType("yaml")
 	a.v.SetEnvPrefix(model.AppName)
 	a.v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	a.v.AutomaticEnv()
 
-	err := a.ReadInFile(cfg, cfgFilePath)
+	err = a.ReadInFile(cfg, cfgFilePath)
 	if err != nil {
 		return err
 	}
@@ -154,7 +158,7 @@ func setConfigDefaults(v *viper.Viper, i interface{}, parent, delim string) erro
 		// If it's a struct, only bind properties.
 		if f.Type.Kind() == reflect.Struct {
 			t := reflect.New(f.Type).Elem().Interface()
-			setConfigDefaults(v, t, env, delim)
+			_ = setConfigDefaults(v, t, env, delim)
 			continue
 		}
 
