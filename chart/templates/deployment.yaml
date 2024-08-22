@@ -85,7 +85,7 @@ spec:
           secret:
             secretName: flipflop-secrets
             items:
-              - key: flipflop-nats-creds
+              - key: nats-creds
                 path: nats.creds
       restartPolicy: Always
 {{ end }}
