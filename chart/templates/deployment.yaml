@@ -50,6 +50,10 @@ spec:
                   name: flipflop-secrets
                   key: fleetdb-oidc-client-secret
           {{- end }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "{{ .Values.env.otel.url }}"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "{{ not .Values.env.otel.authenticate }}"
           securityContext:
             capabilities:
               drop:
