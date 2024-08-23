@@ -2,14 +2,14 @@ package app
 
 import (
 	"os"
-	"reflect"
 	"strings"
 
+	"github.com/jeremywohl/flatten"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store/fleetdb"
 	"github.com/metal-toolbox/rivets/events"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -56,7 +56,7 @@ func (a *App) LoadConfiguration(cfgFilePath, loglevel string) error {
 	cfg := &Configuration{}
 	a.Config = cfg
 
-	err := setConfigDefaults(a.v, cfg, "", ".")
+	err := a.envBindVars()
 	if err != nil {
 		return err
 	}
@@ -130,40 +130,29 @@ func (cfg *Configuration) validate() error {
 	return nil
 }
 
-// setConfigDefaults sets all values in the struct to empty. This is to get around a weird quirk of viper.
-// Viper will not override from a ENV variable if the value isnt set first.
-// Resulting in ENV variables never getting loaded in if they arent in the config.yaml, even empty in the config.
-// https://github.com/spf13/viper/issues/584#issuecomment-1210957041
-func setConfigDefaults(v *viper.Viper, i interface{}, parent, delim string) error {
-	// Retrieve the underlying type of variable `i`.
-	r := reflect.TypeOf(i)
-
-	// If `i` is of type pointer, retrieve the referenced type.
-	if r.Kind() == reflect.Ptr {
-		r = r.Elem()
+// envBindVars binds environment variables to the struct
+// without a configuration file being unmarshalled,
+// this is a workaround for a viper bug,
+//
+// This can be replaced by the solution in https://github.com/spf13/viper/pull/1429
+// once that PR is merged.
+func (a *App) envBindVars() error {
+	envKeysMap := map[string]interface{}{}
+	if err := mapstructure.Decode(a.Config, &envKeysMap); err != nil {
+		return err
 	}
 
-	// Iterate over each field for the type. By default, there is a single field.
-	for i := 0; i < r.NumField(); i++ {
-		// Retrieve the current field and get the `mapstructure` tag.
-		f := r.Field(i)
-		env := f.Tag.Get("mapstructure")
-
-		// By default, set the key to the current tag value. If a parent value was passed in
-		//	prepend the parent and the delimiter.
-		if parent != "" {
-			env = parent + delim + env
-		}
-
-		// If it's a struct, only bind properties.
-		if f.Type.Kind() == reflect.Struct {
-			t := reflect.New(f.Type).Elem().Interface()
-			_ = setConfigDefaults(v, t, env, delim)
-			continue
-		}
-
-		// Bind the environment variable.
-		v.SetDefault(env, nil)
+	// Flatten nested conf map
+	flat, err := flatten.Flatten(envKeysMap, "", flatten.DotStyle)
+	if err != nil {
+		return errors.Wrap(err, "Unable to flatten config")
 	}
-	return v.Unmarshal(i)
+
+	for k := range flat {
+		if err := a.v.BindEnv(k); err != nil {
+			return errors.Wrap(ErrConfig, "env var bind error: "+err.Error())
+		}
+	}
+
+	return nil
 }
