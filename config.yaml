@@ -10,26 +10,8 @@ endpoints:
     oidc_client_scopes:
     url: http://fleetdb:8000
   nats:
-    app_name: flipflop
     connection_timeout: 60s
-    consumer:
-      name: flipflop
-      ack_wait: 5m
-      max_ack_pending: 10
-      pull: true
-      queue_group: flipflop
-    creds_file: /etc/nats/nats.creds
     kv_replication: 1
-    stream:
-      user: flipflop
-      acknowledgements: true
-      duplicate_window: 5m
-      name: controllers
-      retention: workQueue
-      subjects:
-      - com.hollow.sh.controllers.commands.>
-      - com.hollow.sh.controllers.responses.>
-    stream_urn_ns: hollow-controllers
     url: nats://nats:4222
   otel:
     authenticate: false
