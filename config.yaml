@@ -12,6 +12,7 @@ endpoints:
   nats:
     connection_timeout: 60s
     kv_replication: 1
+    creds_file: /etc/nats/nats.creds
     url: nats://nats:4222
   otel:
     authenticate: false

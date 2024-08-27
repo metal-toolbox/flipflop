@@ -49,7 +49,7 @@ func New(cfgFile, loglevel string, profiling bool) (*App, <-chan os.Signal, erro
 		return nil, nil, err
 	}
 
-	switch model.LogLevel(loglevel) {
+	switch model.LogLevel(app.Config.LogLevel) {
 	case model.LogLevelDebug:
 		app.Logger.Level = logrus.DebugLevel
 	case model.LogLevelTrace:
