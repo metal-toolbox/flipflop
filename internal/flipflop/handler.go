@@ -12,7 +12,6 @@ import (
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store"
 	rctypes "github.com/metal-toolbox/rivets/condition"
-	"github.com/metal-toolbox/rivets/events"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,6 @@ type ConditionTaskHandler struct {
 	logger       *logrus.Entry
 	cfg          *app.Configuration
 	bmc          device.Queryor
-	stream       events.Stream
 	store        store.Repository
 	publisher    ctrl.Publisher
 	server       *model.Asset
