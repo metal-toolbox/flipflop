@@ -11,7 +11,6 @@ import (
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store"
 	"github.com/metal-toolbox/flipflop/internal/version"
-	"github.com/metal-toolbox/rivets/events"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -78,13 +77,7 @@ func runWorker(ctx context.Context) {
 		theApp.Logger.Fatal(err)
 	}
 
-	stream, err := events.NewStream(theApp.Config.Endpoints.Nats)
-	if err != nil {
-		theApp.Logger.Fatal(err)
-	}
-
 	ff := flipflop.New(
-		stream,
 		inv,
 		theApp.Logger,
 		theApp.Config,

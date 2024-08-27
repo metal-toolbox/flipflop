@@ -10,7 +10,6 @@ import (
 	"github.com/metal-toolbox/flipflop/internal/store"
 	"github.com/metal-toolbox/flipflop/internal/version"
 	rctypes "github.com/metal-toolbox/rivets/condition"
-	"github.com/metal-toolbox/rivets/events"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 )
@@ -23,7 +22,6 @@ const (
 type flipflop struct {
 	logger *logrus.Logger
 	cfg    *app.Configuration
-	stream events.Stream
 	store  store.Repository
 	name   string
 }
@@ -32,7 +30,6 @@ type flipflop struct {
 //
 // nolint:revive // unexported type is not annoying to use
 func New(
-	stream events.Stream,
 	repository store.Repository,
 	logger *logrus.Logger,
 	cfg *app.Configuration,
@@ -41,7 +38,6 @@ func New(
 
 	return &flipflop{
 		name:   name,
-		stream: stream,
 		store:  repository,
 		cfg:    cfg,
 		logger: logger,
@@ -91,7 +87,6 @@ func (f *flipflop) Run(ctx context.Context) {
 			logger:       loggerEntry,
 			controllerID: nc.ID(),
 			store:        f.store,
-			stream:       f.stream,
 		}
 	}
 
