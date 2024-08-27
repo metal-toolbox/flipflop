@@ -25,11 +25,11 @@ env:
       oidc_audience_url: # to be filled by parent helm chart if authenticate is true
       oidc_issuer_url: # to be filled by parent helm chart if authenticate is true
       oidc_client_id: # to be filled by parent helm chart if authenticate is true
-      oidc_scopes: # to be filled by parent helm chart if authenticate is true
+      oidc_client_scopes: # to be filled by parent helm chart if authenticate is true
     conditionorc:
       authenticate: true
       url: http://conditionorc-api:9001
       oidc_audience_url: # to be filled by parent helm chart if authenticate is true
       oidc_issuer_url: # to be filled by parent helm chart if authenticate is true
       oidc_client_id: # to be filled by parent helm chart if authenticate is true
-      oidc_scopes: # to be filled by parent helm chart if authenticate is true
+      oidc_client_scopes: # to be filled by parent helm chart if authenticate is true
