@@ -51,9 +51,9 @@ spec:
                   key: fleetdb-oidc-client-secret
           {{- end }}
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "{{ .Values.env.otel.url }}"
+              value: "{{ .Values.env.endpoints.otel.url }}"
             - name: OTEL_EXPORTER_OTLP_INSECURE
-              value: "{{ not .Values.env.otel.authenticate }}"
+              value: "{{ not .Values.env.endpoints.otel.authenticate }}"
           securityContext:
             capabilities:
               drop:
