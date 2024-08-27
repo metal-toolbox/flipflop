@@ -13,9 +13,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jeremywohl/flatten v1.0.1
-	github.com/metal-toolbox/ctrl v0.2.1
+	github.com/metal-toolbox/ctrl v0.2.5
 	github.com/metal-toolbox/fleetdb v1.19.3
-	github.com/metal-toolbox/rivets v1.3.2
+	github.com/metal-toolbox/rivets v1.3.3
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
