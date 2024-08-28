@@ -13,7 +13,7 @@ env:
     nats:
       url: nats://nats:4222
       creds_file: /etc/nats/nats.creds
-      connection_timeout: 60s
+      connect_timeout: 60s
       kv_replication: 1
       app_name: flipflop
     otel:
