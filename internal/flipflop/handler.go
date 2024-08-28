@@ -41,7 +41,7 @@ func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctype
 	cth.publisher = publisher
 
 	// Ungeneric the task
-	task, err := NewTask(genTask, cth.cfg.FaultInjection)
+	task, err := NewTask(genTask)
 	if err != nil {
 		cth.logger.WithFields(logrus.Fields{
 			"conditionID":  genTask.ID,

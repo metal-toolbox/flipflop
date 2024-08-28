@@ -11,7 +11,7 @@ import (
 
 type Task rctypes.Task[*rctypes.ServerControlTaskParameters, json.RawMessage]
 
-func NewTask(task *rctypes.Task[any, any], faultInjection bool) (*Task, error) {
+func NewTask(task *rctypes.Task[any, any]) (*Task, error) {
 	paramsJSON, ok := task.Parameters.(json.RawMessage)
 	if !ok {
 		return nil, errInvalideConditionParams
@@ -28,14 +28,9 @@ func NewTask(task *rctypes.Task[any, any], faultInjection bool) (*Task, error) {
 		return nil, errors.Wrap(errTaskConv, err.Error()+": Task.Server")
 	}
 
-	var fault interface{}
-	if faultInjection {
-		fault, err = copystructure.Copy(task.Fault)
-		if err != nil {
-			return nil, errors.Wrap(errTaskConv, err.Error()+": Task.Fault")
-		}
-	} else {
-		fault = nil
+	fault, err := copystructure.Copy(task.Fault)
+	if err != nil {
+		return nil, errors.Wrap(errTaskConv, err.Error()+": Task.Fault")
 	}
 
 	return &Task{
