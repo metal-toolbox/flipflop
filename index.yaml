@@ -2,7 +2,20 @@ apiVersion: v1
 entries:
   flipflop:
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.448702793Z"
+    created: "2024-08-28T15:21:57.062219552Z"
+    description: A chart to control BMCs
+    digest: 01893b2c3b0aa7172264a0032eb98e9f657f50b501a3c1896c16cfefd4870bf4
+    home: https://github.com/metal-toolbox/flipflop
+    keywords:
+    - bmc
+    name: flipflop
+    sources:
+    - https://github.com/metal-toolbox/flipflop
+    urls:
+    - https://metal-toolbox.github.io/flipflop/flipflop-v0.1.1.tgz
+    version: v0.1.1
+  - apiVersion: v2
+    created: "2024-08-28T15:21:57.061733209Z"
     description: A chart to control BMCs
     digest: 4d042fcf8423e2de748af48332e2a04338073e427a8fdcb4af227e6ed9ac4005
     home: https://github.com/metal-toolbox/flipflop
@@ -15,7 +28,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.1.0.tgz
     version: v0.1.0
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.448111536Z"
+    created: "2024-08-28T15:21:57.06103665Z"
     description: A chart to control BMCs
     digest: 1df4df7d30a5396fb987ec1e35a30ff4bce1d3a7970c2feb6db8bfc177bc3b6f
     home: https://github.com/metal-toolbox/flipflop
@@ -28,7 +41,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.9.tgz
     version: v0.0.9
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.447460275Z"
+    created: "2024-08-28T15:21:57.060829851Z"
     description: A chart to control BMCs
     digest: 0ba1e416180fc2306f337ac342f15d8361c6d622dfe6cccb13986763bb490cef
     home: https://github.com/metal-toolbox/flipflop
@@ -41,7 +54,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.8.tgz
     version: v0.0.8
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.447054915Z"
+    created: "2024-08-28T15:21:57.060611902Z"
     description: A chart to control BMCs
     digest: 93ee0d0110018158ce1a85210edded8b9450a5652f57f8a23c3697a9b8581cc2
     home: https://github.com/metal-toolbox/flipflop
@@ -54,7 +67,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.7.tgz
     version: v0.0.7
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.446821608Z"
+    created: "2024-08-28T15:21:57.060369176Z"
     description: A chart to control BMCs
     digest: bab05c8acc13e6f60cdfcd61553819bf11aa2b1a1e568f9230298287fdb13d4d
     home: https://github.com/metal-toolbox/flipflop
@@ -67,7 +80,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.6.tgz
     version: v0.0.6
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.446582079Z"
+    created: "2024-08-28T15:21:57.060144814Z"
     description: A chart to control BMCs
     digest: 407ae10a38098b21fe72fdd90d6b7524df5f2b220dfbeda10d0e35ee8b32d443
     home: https://github.com/metal-toolbox/flipflop
@@ -80,7 +93,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.5.tgz
     version: v0.0.5
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.446175744Z"
+    created: "2024-08-28T15:21:57.059922096Z"
     description: A chart to control BMCs
     digest: 55c7e642112447016042504ec664bad0dcb1eba2f1623cecc8b68d0576081da6
     home: https://github.com/metal-toolbox/flipflop
@@ -93,7 +106,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.4.tgz
     version: v0.0.4
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.445952215Z"
+    created: "2024-08-28T15:21:57.059683518Z"
     description: A chart to control BMCs
     digest: 8f98d04985523d67d0c541fac4a4c08da0273a3dbc0771a7efbef95d27a97260
     home: https://github.com/metal-toolbox/flipflop
@@ -106,7 +119,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.3.tgz
     version: v0.0.3
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.445664456Z"
+    created: "2024-08-28T15:21:57.059403512Z"
     description: A chart to control BMCs
     digest: 051d5084dba7fba387d25f74f36ac79288dd1bc5dbf76ca8c86e866cafa5ad04
     home: https://github.com/metal-toolbox/flipflop
@@ -119,7 +132,7 @@ entries:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.2.tgz
     version: v0.0.2
   - apiVersion: v2
-    created: "2024-08-28T13:28:08.445363361Z"
+    created: "2024-08-28T15:21:57.059114759Z"
     description: A chart to control BMCs
     digest: 481db501152c85894d0be70b6a62f3f8e675fabfd1035af82d15db4d93004b60
     home: https://github.com/metal-toolbox/flipflop
@@ -131,4 +144,4 @@ entries:
     urls:
     - https://metal-toolbox.github.io/flipflop/flipflop-v0.0.1.tgz
     version: v0.0.1
-generated: "2024-08-28T13:28:08.444899942Z"
+generated: "2024-08-28T15:21:57.058683669Z"
