@@ -262,7 +262,12 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 			return cth.failedWithError(ctx, "failed to retrieve host boot status", err)
 		}
 		if booted {
-			// TODO: record successful result in fleetdb before returning
+			done := time.Now()
+			srvID := cth.task.Parameters.AssetID
+			fwID := cth.task.Parameters.ValidateFirmwareID
+			if dbErr := cth.store.ValidateFirmwareSet(ctx, srvID, fwID, done); dbErr != nil {
+				return cth.failedWithError(ctx, "marking firmware set validated", dbErr)
+			}
 			return nil
 		}
 	}

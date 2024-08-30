@@ -85,8 +85,8 @@ func newFleetDBClientWithOAuthOtel(ctx context.Context, cfg *Config, logger *log
 		return nil, err
 	}
 
-	// clientID defaults to 'alloy'
-	clientID := "alloy"
+	// clientID defaults to 'flipflop'
+	clientID := "flipflop"
 
 	if cfg.OidcClientID != "" {
 		clientID = cfg.OidcClientID
