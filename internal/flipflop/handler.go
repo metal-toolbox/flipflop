@@ -268,7 +268,7 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 			if dbErr := cth.store.ValidateFirmwareSet(ctx, srvID, fwID, done); dbErr != nil {
 				return cth.failedWithError(ctx, "marking firmware set validated", dbErr)
 			}
-			return nil
+			return cth.successful(ctx, "firmware set validated: "+fwID.String())
 		}
 	}
 
