@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/metal-toolbox/flipflop/internal/model"
@@ -179,4 +180,9 @@ func serverAttributes(attributes []fleetdbapi.Attributes) (map[string]string, er
 	}
 
 	return sAttributes, nil
+}
+
+// ValidateFirmwareSet reaches out to FleetDB to record that this firmware set has been successfully tested.
+func (s *Store) ValidateFirmwareSet(ctx context.Context, srvID, fwID uuid.UUID, done time.Time) error {
+	return s.api.ValidateFirmwareSet(ctx, srvID, fwID, done)
 }
