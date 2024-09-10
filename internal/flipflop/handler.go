@@ -32,6 +32,25 @@ type ConditionTaskHandler struct {
 	controllerID string
 }
 
+// return a live session to the BMC (or an error). The caller is responsible for closing the connection
+func (cth *ConditionTaskHandler) openBMCConnection(ctx context.Context) error {
+	var bmc device.Queryor
+	if cth.cfg.Dryrun { // Fake BMC
+		bmc = device.NewDryRunBMCClient(cth.server)
+		cth.logger.Warn("using fake BMC")
+	} else {
+		bmc = device.NewBMCClient(cth.server, cth.logger)
+	}
+
+	err := bmc.Open(ctx)
+	if err != nil {
+		cth.logger.WithError(err).Error("bmc: failed to connect")
+		return err
+	}
+	cth.bmc = bmc
+	return nil
+}
+
 func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctypes.Task[any, any], publisher ctrl.Publisher) error {
 	ctx, span := otel.Tracer(pkgName).Start(
 		ctx,
@@ -79,25 +98,15 @@ func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctype
 	)
 	cth.logger = loggerEntry
 
-	var bmc device.Queryor
-	if cth.cfg.Dryrun { // Fake BMC
-		bmc = device.NewDryRunBMCClient(server)
-		loggerEntry.Warn("Running BMC Device in Dryrun mode")
-	} else {
-		bmc = device.NewBMCClient(server, loggerEntry)
-	}
-
-	err = bmc.Open(ctx)
-	if err != nil {
-		loggerEntry.WithError(err).Error("bmc connection failed to connect")
+	if err := cth.openBMCConnection(ctx); err != nil {
 		return err
 	}
+
 	defer func() {
-		if err := bmc.Close(ctx); err != nil {
+		if err := cth.bmc.Close(ctx); err != nil {
 			loggerEntry.WithError(err).Error("bmc connection close error")
 		}
 	}()
-	cth.bmc = bmc
 
 	return cth.Run(ctx)
 }
@@ -228,17 +237,27 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 
 	cth.publishActive(ctx, "bmc power cycle complete")
 
-	var err error
-
 	// Next we want to cycle the host, but the BMC will take some
 	// time to reboot, so retry once every 30 seconds up to our
 	// timeout deadline (ideally we'd have a way to distinguish
 	// failures that are due to the BMC not being back online yet
 	// from ones that aren't going to be resolved by waiting and
 	// retrying...)
+	bmcConnected := false
+	var psErr error
 	for time.Now().Before(deadline) {
 		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
-			return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", errDelay)
+			return cth.failedWithError(context.Background(), "context error", errDelay)
+		}
+
+		if !bmcConnected {
+			_ = cth.bmc.Close(ctx)
+			if err := cth.openBMCConnection(ctx); err != nil {
+				cth.logger.WithError(err).Warn("bmc: failed to connect")
+				continue
+			}
+			bmcConnected = true
+			// we have a deferred close for the BMC session queued up when we return from this function
 		}
 
 		newDeviceState := "cycle"
@@ -252,16 +271,16 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 			newDeviceState = "on"
 		}
 
-		err = cth.bmc.SetPowerState(ctx, newDeviceState)
-		if err == nil {
+		psErr = cth.bmc.SetPowerState(ctx, newDeviceState)
+		if psErr == nil {
 			cth.publishActive(ctx, "device power cycle complete")
 			break
 		}
 		cth.logger.WithError(err).WithField("state", newDeviceState).Debug("bmc set power state")
 	}
 
-	if err != nil {
-		return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", err)
+	if psErr != nil {
+		return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", psErr)
 	}
 
 	// Finally, wait for the host to boot successfully
@@ -270,7 +289,7 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 		// stale POST code from a previous boot before the
 		// power-cycle has actually started happening
 		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
-			return cth.failedWithError(ctx, "failed to retrieve host boot status", errDelay)
+			return cth.failedWithError(context.Background(), "failed to retrieve host boot status", errDelay)
 		}
 
 		booted, err := cth.bmc.HostBooted(ctx)
@@ -296,7 +315,7 @@ func sleepInContext(ctx context.Context, t time.Duration) error {
 	case <-time.After(t):
 		return nil
 	case <-ctx.Done():
-		return context.Canceled
+		return ctx.Err()
 	}
 }
 
