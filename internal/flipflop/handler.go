@@ -226,6 +226,8 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 		return cth.failedWithError(ctx, "failed to power cycle BMC", err)
 	}
 
+	cth.publishActive(ctx, "bmc power cycle complete")
+
 	var err error
 
 	// Next we want to cycle the host, but the BMC will take some
@@ -239,10 +241,23 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 			return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", errDelay)
 		}
 
-		err = cth.bmc.SetPowerState(ctx, "cycle")
+		newDeviceState := "cycle"
+		currentState, err := cth.bmc.GetPowerState(ctx)
+		if err != nil {
+			cth.logger.WithError(err).Debug("getting device current power state")
+			continue
+		}
+
+		if strings.Contains(strings.ToLower(currentState), "off") {
+			newDeviceState = "on"
+		}
+
+		err = cth.bmc.SetPowerState(ctx, newDeviceState)
 		if err == nil {
+			cth.publishActive(ctx, "device power cycle complete")
 			break
 		}
+		cth.logger.WithError(err).WithField("state", newDeviceState).Debug("bmc set power state")
 	}
 
 	if err != nil {
