@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/metal-toolbox/ctrl v0.2.9
-	github.com/metal-toolbox/fleetdb v1.19.5-0.20240913163810-6a9703ca4111
+	github.com/metal-toolbox/fleetdb v1.19.5
 	github.com/metal-toolbox/rivets v1.3.7
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -32,7 +32,6 @@ require (
 )
 
 require (
-	cloud.google.com/go/kms v1.17.1 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Jeffail/gabs/v2 v2.7.0 // indirect
 	github.com/VictorLowther/simplexml v0.0.0-20180716164440-0bff93621230 // indirect
