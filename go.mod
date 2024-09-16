@@ -13,9 +13,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jeremywohl/flatten v1.0.1
-	github.com/metal-toolbox/ctrl v0.2.7
-	github.com/metal-toolbox/fleetdb v1.19.4
-	github.com/metal-toolbox/rivets v1.3.6
+	github.com/metal-toolbox/ctrl v0.2.9
+	github.com/metal-toolbox/fleetdb v1.19.5-0.20240913163810-6a9703ca4111
+	github.com/metal-toolbox/rivets v1.3.7
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
@@ -92,7 +92,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/metal-toolbox/conditionorc v1.1.1-0.20240805163108-b1c018c91b87 // indirect
+	github.com/metal-toolbox/conditionorc v1.1.8 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -126,7 +126,6 @@ require (
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible // indirect
 	github.com/volatiletech/sqlboiler/v4 v4.16.2 // indirect
 	github.com/volatiletech/strmangle v0.0.6 // indirect
-	go.hollow.sh/toolbox v0.6.3 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.28.0 // indirect
