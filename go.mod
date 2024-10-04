@@ -14,8 +14,8 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/metal-toolbox/ctrl v0.2.9
-	github.com/metal-toolbox/fleetdb v1.19.5
-	github.com/metal-toolbox/rivets v1.3.7
+	github.com/metal-toolbox/fleetdb v1.19.7
+	github.com/metal-toolbox/rivets v1.3.8
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
@@ -37,7 +37,7 @@ require (
 	github.com/VictorLowther/simplexml v0.0.0-20180716164440-0bff93621230 // indirect
 	github.com/VictorLowther/soap v0.0.0-20150314151524-8e36fca84b22 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bmc-toolbox/common v0.0.0-20240723142833-87832458b53b // indirect
+	github.com/bmc-toolbox/common v0.0.0-20240926143744-8c478be881d7 // indirect
 	github.com/bytedance/sonic v1.12.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
