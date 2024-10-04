@@ -112,6 +112,8 @@ github.com/bmc-toolbox/bmclib/v2 v2.2.2 h1:JGkYQPplHSZsfJOjkRBCGUHGU8YdiFMRfJzwz
 github.com/bmc-toolbox/bmclib/v2 v2.2.2/go.mod h1:gFF4iD468hbW1JUdJJx3mbhNGzoLsG47epbMa++grp8=
 github.com/bmc-toolbox/common v0.0.0-20240723142833-87832458b53b h1:0LHjikaGWlqEMczrCEZ6w1N/ZqcYlx6WRHkhabRUQEk=
 github.com/bmc-toolbox/common v0.0.0-20240723142833-87832458b53b/go.mod h1:Cdnkm+edb6C0pVkyCrwh3JTXAe0iUF9diDG/DztPI9I=
+github.com/bmc-toolbox/common v0.0.0-20240926143744-8c478be881d7 h1:Xe6j3oMwe82buwBwEpok9wr+v21Io59pqMTZ5rKRVn8=
+github.com/bmc-toolbox/common v0.0.0-20240926143744-8c478be881d7/go.mod h1:Cdnkm+edb6C0pVkyCrwh3JTXAe0iUF9diDG/DztPI9I=
 github.com/bombsimon/logrusr/v2 v2.0.1 h1:1VgxVNQMCvjirZIYaT9JYn6sAVGVEcNtRE0y4mvaOAM=
 github.com/bombsimon/logrusr/v2 v2.0.1/go.mod h1:ByVAX+vHdLGAfdroiMg6q0zgq2FODY2lc5YJvzmOJio=
 github.com/bytedance/sonic v1.12.1 h1:jWl5Qz1fy7X1ioY74WqO0KjAMtAGQs4sYnjiEBiyX24=
@@ -553,8 +555,12 @@ github.com/metal-toolbox/ctrl v0.2.9 h1:Q1Hqpqyb71/gg2PcX/qrfoDE8FlydJt4rPQb7/Z8
 github.com/metal-toolbox/ctrl v0.2.9/go.mod h1:QVATUIWFx3dbjOoEX0EnJHtRvypRlXZ9HUGaPLRyTG8=
 github.com/metal-toolbox/fleetdb v1.19.5 h1:ERgdFAUtWnT/AeVhCGclsENmwPhU88JUcgOZAdxWKYI=
 github.com/metal-toolbox/fleetdb v1.19.5/go.mod h1:k9MZXQsJX4NfBoANst6g1468papSs0tzsSyzN3gGWuQ=
+github.com/metal-toolbox/fleetdb v1.19.7 h1:lTl67gtt5DzTdH4MgLViyXaTaH6FM8BtmM7NX7hXDZY=
+github.com/metal-toolbox/fleetdb v1.19.7/go.mod h1:IMbJwyC9DnznuPNjAaP54Y6uWuWu9cPXGH+yoe7jwGA=
 github.com/metal-toolbox/rivets v1.3.7 h1:ZM6AbX1xASS91FWi/2i2wh9twVOPJTzpD3c7fcllhBk=
 github.com/metal-toolbox/rivets v1.3.7/go.mod h1:8irU6eXgOa3QkjdcGi/aY4vqoMqCkbwVz7iVTYYPCX8=
+github.com/metal-toolbox/rivets v1.3.8 h1:BxzBPBYPMGBwJurIe+8Xji2YL7vHZUHbOmMpszWfPYw=
+github.com/metal-toolbox/rivets v1.3.8/go.mod h1:8irU6eXgOa3QkjdcGi/aY4vqoMqCkbwVz7iVTYYPCX8=
 github.com/microsoft/go-mssqldb v0.17.0/go.mod h1:OkoNGhGEs8EZqchVTtochlXruEhEOaO4S0d2sB5aeGQ=
 github.com/miekg/dns v1.1.26/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/miekg/dns v1.1.41/go.mod h1:p6aan82bvRIyn+zDIv9xYNUpwa73JcSh9BKwknJysuI=
