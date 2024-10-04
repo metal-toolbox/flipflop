@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/bmc-toolbox/bmclib/v2"
+	"github.com/bmc-toolbox/bmclib/v2/constants"
+	"github.com/bmc-toolbox/bmclib/v2/providers"
 	logrusrv2 "github.com/bombsimon/logrusr/v2"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/pkg/errors"
@@ -26,8 +28,9 @@ const (
 )
 
 var (
-	errBMCLogin  = errors.New("bmc login error")
-	errBMCLogout = errors.New("bmc logout error")
+	errBMCLogin          = errors.New("bmc login error")
+	errBMCLogout         = errors.New("bmc logout error")
+	errBMCNotImplemented = errors.New("method not implemented")
 )
 
 // Bmc is an implementation of the Queryor interface
@@ -37,6 +40,7 @@ type Bmc struct {
 	logger *logrus.Entry
 }
 
+// NewBMCClient creates a new Queryor interface for a BMC
 func NewBMCClient(asset *model.Asset, logger *logrus.Entry) Queryor {
 	client := newBmclibClient(asset, logger)
 
@@ -77,32 +81,21 @@ func (b *Bmc) Close(traceCtx context.Context) error {
 
 // GetPowerState returns the device power status
 func (b *Bmc) GetPowerState(ctx context.Context) (string, error) {
-	if err := b.Open(ctx); err != nil {
-		return "", err
-	}
-
 	defer b.tracelog()
-	return b.GetPowerState(ctx)
+	return b.client.GetPowerState(ctx)
 }
 
 // SetPowerState sets the given power state on the device
 func (b *Bmc) SetPowerState(ctx context.Context, state string) error {
-	if err := b.Open(ctx); err != nil {
-		return err
-	}
-
 	defer b.tracelog()
 	_, err := b.client.SetPowerState(ctx, state)
 	return err
 }
 
-// SetBootDevice simulates setting the boot device of the remote device
+// SetBootDevice sets the boot device of the remote device, and validates it was set
+//
+//nolint:gocritic // its a TODO
 func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiBoot bool) error {
-	// Implement boot device change logic here
-	if err := b.Open(ctx); err != nil {
-		return err
-	}
-
 	ok, err := b.client.SetBootDevice(ctx, device, persistent, efiBoot)
 	if err != nil {
 		return err
@@ -112,18 +105,47 @@ func (b *Bmc) SetBootDevice(ctx context.Context, device string, persistent, efiB
 		return errors.New("setting boot device failed")
 	}
 
+	// Now lets validate the boot device order
+	// TODO; This is a WIP. We do not know yet if This is the right bmc call to get boot device
+	// override, err := b.client.GetBootDeviceOverride(ctx)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// if device != string(override.Device) {
+	// 	return errors.New("setting boot device failed to propagate")
+	// }
+
+	// if efiBoot != override.IsEFIBoot {
+	// 	return errors.New("setting boot device EFI boot failed to propagate")
+	// }
+
+	// if persistent != override.IsPersistent {
+	// 	return errors.New("setting boot device Persistent boot failed to propagate")
+	// }
+
 	return nil
 }
 
-// PowerCycleBMC simulates a power cycle action on the BMC of the remote device
-func (b *Bmc) PowerCycleBMC(ctx context.Context) error {
-	if err := b.Open(ctx); err != nil {
-		return err
-	}
+// GetBootDevice gets the boot device information of the remote device
+func (b *Bmc) GetBootDevice(_ context.Context) (device string, persistent, efiBoot bool, err error) {
+	return "", false, false, errors.Wrap(errBMCNotImplemented, "GetBootDevice")
+}
 
+// PowerCycleBMC sets a power cycle action on the BMC of the remote device
+func (b *Bmc) PowerCycleBMC(ctx context.Context) error {
 	defer b.tracelog()
 	_, err := b.client.ResetBMC(ctx, "GracefulRestart")
 	return err
+}
+
+func (b *Bmc) HostBooted(ctx context.Context) (bool, error) {
+	defer b.tracelog()
+	status, _, err := b.client.PostCode(ctx)
+	if err != nil {
+		return false, err
+	}
+	return status == constants.POSTStateOS, nil
 }
 
 func (b *Bmc) tracelog() {
@@ -208,5 +230,14 @@ func newBmclibClient(asset *model.Asset, l *logrus.Entry) *bmclib.Client {
 		bmclib.WithTracerProvider(otel.GetTracerProvider()),
 	)
 
-	return bmcClient
+	bmcClient.Registry.Drivers = bmcClient.Registry.Supports(
+		providers.FeatureBmcReset,
+		providers.FeatureBootDeviceSet,
+		providers.FeaturePowerSet,
+		providers.FeaturePowerState,
+	)
+
+	// NOTE: remove the .Using("redfish") before this ends up in prod
+	// this is kept here since ipmitool doesn't work well in the docker sandbox env.
+	return bmcClient.Using("redfish")
 }

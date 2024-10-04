@@ -1,0 +1,19 @@
+facility: sandbox
+log_level: debug
+namespace: default
+endpoints:
+  fleetdb:
+    authenticate: false
+    oidc_audience_url:
+    oidc_client_id:
+    oidc_issuer_url:
+    oidc_client_scopes:
+    url: http://fleetdb:8000
+  nats:
+    connect_timeout: 60s
+    kv_replication: 1
+    creds_file: /etc/nats/nats.creds
+    url: nats://nats:4222
+  otel:
+    authenticate: false
+    url: jaeger:4317

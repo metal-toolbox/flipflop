@@ -1,0 +1,10 @@
+{{ if .Values.enable }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flipflop-config
+data:
+  config.yaml: |-
+{{ toYaml .Values.env | indent 4 }}
+{{ end }}

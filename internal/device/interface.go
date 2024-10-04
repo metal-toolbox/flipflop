@@ -11,5 +11,7 @@ type Queryor interface {
 	GetPowerState(ctx context.Context) (state string, err error)
 	SetPowerState(ctx context.Context, state string) error
 	SetBootDevice(ctx context.Context, device string, persistent, efiBoot bool) error
+	GetBootDevice(ctx context.Context) (device string, persistent, efiBoot bool, err error)
 	PowerCycleBMC(ctx context.Context) error
+	HostBooted(ctx context.Context) (bool, error)
 }

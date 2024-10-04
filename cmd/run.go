@@ -13,7 +13,6 @@ import (
 	"github.com/metal-toolbox/flipflop/internal/version"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"go.hollow.sh/toolbox/events"
 
 	// nolint:gosec // profiling endpoint listens on localhost.
 	_ "net/http/pprof"
@@ -22,19 +21,15 @@ import (
 var cmdRun = &cobra.Command{
 	Use:   "run",
 	Short: "Run flipflop service to listen for events on NATS and execute on serverState Conditions",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		runWorker(cmd.Context())
 	},
 }
 
 // run worker command
 var (
-	useStatusKV    bool
 	dryrun         bool
 	faultInjection bool
-	facilityCode   string
-	storeKind      string
-	replicas       int
 )
 
 var (
@@ -43,8 +38,6 @@ var (
 
 func runWorker(ctx context.Context) {
 	theApp, termCh, err := app.New(
-		model.AppKindflipflop,
-		model.StoreKind(storeKind),
 		cfgFile,
 		logLevel,
 		enableProfiling,
@@ -52,6 +45,10 @@ func runWorker(ctx context.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Override config with command line args
+	theApp.Config.Dryrun = dryrun
+	theApp.Config.FaultInjection = faultInjection
 
 	// serve metrics endpoint
 	metrics.ListenAndServe()
@@ -72,48 +69,25 @@ func runWorker(ctx context.Context) {
 
 	inv, err := store.NewRepository(
 		ctx,
-		theApp.Config.StoreKind,
-		theApp.Kind,
-		theApp.Config,
+		model.FleetDB,
+		&theApp.Config.Endpoints.FleetDB,
 		theApp.Logger,
 	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	stream, err := events.NewStream(*theApp.Config.NatsOptions)
 	if err != nil {
 		theApp.Logger.Fatal(err)
 	}
 
-	w := flipflop.New(
-		facilityCode,
-		dryrun,
-		faultInjection,
-		theApp.Config.Concurrency,
-		replicas,
-		stream,
+	ff := flipflop.New(
 		inv,
 		theApp.Logger,
+		theApp.Config,
 	)
 
-	w.Run(ctx)
+	ff.Run(ctx)
 }
 
 func init() {
-	cmdRun.PersistentFlags().StringVar(&storeKind, "store", "", "Inventory store to lookup asset credentials - fleetdb")
 	cmdRun.PersistentFlags().BoolVarP(&dryrun, "dry-run", "", false, "In dryrun mode, the worker actions the task without installing firmware")
 	cmdRun.PersistentFlags().BoolVarP(&faultInjection, "fault-injection", "", false, "Tasks can include a Fault attribute to allow fault injection for development purposes")
-	cmdRun.PersistentFlags().IntVarP(&replicas, "replica-count", "r", 3, "The number of replicas to use for NATS data")
-	cmdRun.PersistentFlags().StringVar(&facilityCode, "facility-code", "", "The facility code this flasher instance is associated with")
-
-	if err := cmdRun.MarkPersistentFlagRequired("facility-code"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := cmdRun.MarkPersistentFlagRequired("store"); err != nil {
-		log.Fatal(err)
-	}
-
 	rootCmd.AddCommand(cmdRun)
 }

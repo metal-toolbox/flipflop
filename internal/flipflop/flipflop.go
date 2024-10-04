@@ -3,120 +3,95 @@ package flipflop
 import (
 	"context"
 	"os"
-	"sync"
-	"time"
 
+	ctrl "github.com/metal-toolbox/ctrl"
+	"github.com/metal-toolbox/flipflop/internal/app"
+	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store"
-	"github.com/pkg/errors"
+	"github.com/metal-toolbox/flipflop/internal/version"
+	rctypes "github.com/metal-toolbox/rivets/condition"
 	"github.com/sirupsen/logrus"
-	"go.hollow.sh/toolbox/events"
-	"go.hollow.sh/toolbox/events/registry"
+	"go.opentelemetry.io/otel"
 )
 
 const (
-	pkgName = "internal/worker"
-)
-
-var (
-	fetchEventsInterval = 10 * time.Second
-
-	// conditionTimeout defines the time after which the condition execution will be cancelled.
-	conditionTimeout = 180 * time.Minute
-
-	errConditionDeserialize = errors.New("unable to deserialize condition")
+	pkgName = "internal/flipflop"
 )
 
 // flipflop holds attributes to run a cookie flipflop instance
 type flipflop struct {
-	stream            events.Stream
-	store             store.Repository
-	syncWG            *sync.WaitGroup
-	logger            *logrus.Logger
-	name              string
-	id                registry.ControllerID // assigned when this worker registers itself
-	facilityCode      string
-	concurrency       int
-	dispatched        int32
-	dryrun            bool
-	faultInjection    bool
-	replicaCount      int
-	statusKVPublisher *statusKVPublisher
+	logger *logrus.Logger
+	cfg    *app.Configuration
+	store  store.Repository
+	name   string
 }
 
 // New returns a cookie flipflop
+//
+// nolint:revive // unexported type is not annoying to use
 func New(
-	facilityCode string,
-	dryrun,
-	faultInjection bool,
-	concurrency,
-	replicaCount int,
-	stream events.Stream,
 	repository store.Repository,
 	logger *logrus.Logger,
+	cfg *app.Configuration,
 ) *flipflop {
-	id, _ := os.Hostname()
+	name, _ := os.Hostname()
 
 	return &flipflop{
-		name:           id,
-		facilityCode:   facilityCode,
-		dryrun:         dryrun,
-		faultInjection: faultInjection,
-		concurrency:    concurrency,
-		replicaCount:   replicaCount,
-		syncWG:         &sync.WaitGroup{},
-		stream:         stream,
-		store:          repository,
-		logger:         logger,
+		name:   name,
+		store:  repository,
+		cfg:    cfg,
+		logger: logger,
 	}
 }
 
-// Run runs the firmware install worker which listens for events to action.
 func (f *flipflop) Run(ctx context.Context) {
-	tickerFetchEvents := time.NewTicker(fetchEventsInterval).C
+	ctx, span := otel.Tracer(pkgName).Start(
+		ctx,
+		"flipflop.Run",
+	)
+	defer span.End()
 
-	if err := f.stream.Open(); err != nil {
-		f.logger.WithError(err).Error("event stream connection error")
-		return
-	}
-
-	// returned channel ignored, since this is a Pull based subscription.
-	_, err := f.stream.Subscribe(ctx)
-	if err != nil {
-		f.logger.WithError(err).Error("event stream subscription error")
-		return
-	}
-
-	f.logger.Info("connected to event stream.")
-
-	f.startflipflopLivenessCheckin(ctx)
-
-	f.statusKVPublisher = newStatusKVPublisher(f.stream, f.replicaCount, f.logger)
-
-	f.logger.WithFields(
+	v := version.Current()
+	loggerEntry := f.logger.WithFields(
 		logrus.Fields{
-			"replica-count":   f.replicaCount,
-			"concurrency":     f.concurrency,
-			"dry-run":         f.dryrun,
-			"fault-injection": f.faultInjection,
+			"version":        v.AppVersion,
+			"commit":         v.GitCommit,
+			"branch":         v.GitBranch,
+			"dry-run":        f.cfg.Dryrun,
+			"faultInjection": f.cfg.FaultInjection,
 		},
-	).Info("flipflop running")
+	)
+	loggerEntry.Info("flipflop running")
 
-Loop:
-	for {
-		select {
-		case <-tickerFetchEvents:
-			if f.concurrencyLimit() {
-				continue
-			}
+	nc := ctrl.NewNatsController(
+		model.AppName,
+		f.cfg.FacilityCode,
+		string(rctypes.ServerControl),
+		f.cfg.Endpoints.Nats.URL,
+		f.cfg.Endpoints.Nats.CredsFile,
+		rctypes.ServerControl,
+		ctrl.WithConcurrency(f.cfg.Concurrency),
+		ctrl.WithKVReplicas(f.cfg.Endpoints.Nats.KVReplicationFactor),
+		ctrl.WithLogger(f.logger),
+		ctrl.WithConnectionTimeout(f.cfg.Endpoints.Nats.ConnectTimeout),
+	)
 
-			f.processEvents(ctx)
+	err := nc.Connect(ctx)
+	if err != nil {
+		f.logger.Fatal(err)
+	}
 
-		case <-ctx.Done():
-			if f.dispatched > 0 {
-				continue
-			}
-
-			break Loop
+	handlerFactory := func() ctrl.TaskHandler {
+		return &ConditionTaskHandler{
+			cfg:          f.cfg,
+			logger:       loggerEntry,
+			controllerID: nc.ID(),
+			store:        f.store,
 		}
+	}
+
+	err = nc.ListenEvents(ctx, handlerFactory)
+	if err != nil {
+		f.logger.Fatal(err)
 	}
 }

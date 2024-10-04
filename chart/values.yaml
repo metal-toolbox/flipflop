@@ -1,0 +1,35 @@
+enable: true
+image:
+  pullPolicy: Always
+  repository:
+    tag: latest
+    url: localhost:5001
+env:
+  facility: sandbox
+  log_level: debug
+  dryrun: false
+  fault_injection: true
+  endpoints:
+    nats:
+      url: nats://nats:4222
+      creds_file: /etc/nats/nats.creds
+      connect_timeout: 60s
+      kv_replication: 1
+      app_name: flipflop
+    otel:
+      url: jaeger:4317
+      authenticate: false
+    fleetdb:
+      authenticate: true
+      url: http://fleetdb:8000
+      oidc_audience_url: # to be filled by parent helm chart if authenticate is true
+      oidc_issuer_url: # to be filled by parent helm chart if authenticate is true
+      oidc_client_id: # to be filled by parent helm chart if authenticate is true
+      oidc_client_scopes: # to be filled by parent helm chart if authenticate is true
+    conditionorc:
+      authenticate: true
+      url: http://conditionorc-api:9001
+      oidc_audience_url: # to be filled by parent helm chart if authenticate is true
+      oidc_issuer_url: # to be filled by parent helm chart if authenticate is true
+      oidc_client_id: # to be filled by parent helm chart if authenticate is true
+      oidc_client_scopes: # to be filled by parent helm chart if authenticate is true

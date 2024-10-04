@@ -1,0 +1,95 @@
+{{ if .Values.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-service: flipflop
+    kind: controller
+  name: flipflop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-service: flipflop
+  template:
+    metadata:
+      labels:
+        k8s-service: flipflop
+    spec:
+      terminationGracePeriodSeconds: 1200
+      containers:
+        - name: flipflop
+          image: {{ .Values.image.repository.url }}/flipflop:{{ .Values.image.repository.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [
+           "flipflop",
+           "run",
+           "--config",
+           "/etc/flipflop/config.yaml",
+           "--enable-pprof",
+           "--log-level",
+           "{{- .Values.env.log_level -}}",
+           {{- if .Values.env.fault_injection -}}
+           "--fault-injection",
+           {{- end -}}
+           {{- if .Values.env.dryrun -}}
+           "--dry-run",
+           {{- end -}}
+          ]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/flipflop
+            - name: nats-creds-volume
+              mountPath: /etc/nats
+              readOnly: true
+          env:
+          {{- if .Values.env.endpoints.fleetdb.authenticate }}
+            - name: FLIPFLOP_ENDPOINTS_FLEETDB_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: flipflop-secrets
+                  key: fleetdb-oidc-client-secret
+          {{- end }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "{{ .Values.env.endpoints.otel.url }}"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "{{ not .Values.env.endpoints.otel.authenticate }}"
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200M
+            requests:
+              cpu: 200m
+              memory: 200M
+          ports:
+            - name: metrics-port
+              containerPort: 9090
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics-port
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics-port
+            initialDelaySeconds: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: flipflop-config
+        - name: nats-creds-volume
+          secret:
+            secretName: flipflop-secrets
+            items:
+              - key: flipflop-nats-creds
+                path: nats.creds
+      restartPolicy: Always
+{{ end }}

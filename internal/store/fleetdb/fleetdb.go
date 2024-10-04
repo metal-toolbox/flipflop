@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/metal-toolbox/flipflop/internal/app"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -29,11 +29,11 @@ var (
 type Store struct {
 	api    *fleetdbapi.Client
 	logger *logrus.Logger
-	config *app.FleetDBOptions
+	config *Config
 }
 
-// NewStore returns a serverservice store queryor to lookup and publish assets to, from the store.
-func New(ctx context.Context, appKind model.AppKind, cfg *app.FleetDBOptions, logger *logrus.Logger) (*Store, error) {
+// NewStore returns a fleetdb store queryor to lookup and publish assets to, from the store.
+func New(ctx context.Context, cfg *Config, logger *logrus.Logger) (*Store, error) {
 	apiclient, err := NewFleetDBClient(ctx, cfg, logger)
 	if err != nil {
 		return nil, err
@@ -180,4 +180,9 @@ func serverAttributes(attributes []fleetdbapi.Attributes) (map[string]string, er
 	}
 
 	return sAttributes, nil
+}
+
+// ValidateFirmwareSet reaches out to FleetDB to record that this firmware set has been successfully tested.
+func (s *Store) ValidateFirmwareSet(ctx context.Context, srvID, fwID uuid.UUID, done time.Time) error {
+	return s.api.ValidateFirmwareSet(ctx, srvID, fwID, done)
 }
