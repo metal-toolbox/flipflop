@@ -1,9 +1,11 @@
 package model
 
 import (
+	"context"
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/stmcginnis/gofish/redfish"
 )
 
 type (
@@ -45,4 +47,35 @@ type Asset struct {
 
 	// Facility this Asset is hosted in.
 	FacilityCode string
+}
+
+// UpdateFn is a function that publishes the given string as a condition status message
+type UpdateFn func(string)
+
+type DelayFn func(context.Context) error
+
+type OpenCloser interface {
+	Open(context.Context) error
+	Close(context.Context) error
+}
+
+type BMCResetter interface {
+	BmcReset(context.Context, string) (bool, error)
+}
+
+type PowerMonitor interface {
+	PowerStateGet(context.Context) (string, error)
+	PowerSet(context.Context, string) (bool, error)
+}
+
+type BootMonitor interface {
+	GetBootProgress() (*redfish.BootProgress, error)
+	BootComplete() (bool, error)
+}
+
+type BMCBootMonitor interface {
+	OpenCloser
+	BMCResetter
+	BootMonitor
+	PowerMonitor
 }

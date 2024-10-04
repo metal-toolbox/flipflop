@@ -111,6 +111,10 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
+github.com/bmc-toolbox/bmclib/v2 v2.3.4 h1:ihCC9jH8g5Racg4zy+lWpjt7vRt2aWzit3LEL1DiS7k=
+github.com/bmc-toolbox/bmclib/v2 v2.3.4/go.mod h1:t8If/0fHQTRIK/yKDk2H3SgthDNNj+7z2aeftDFRFrU=
+github.com/bmc-toolbox/common v0.0.0-20241031162543-6b96e5981a0d h1:dMmFDAAEpXizInaNwPSa5LM6tX/xDIPKjL6v9jYfMxo=
+github.com/bmc-toolbox/common v0.0.0-20241031162543-6b96e5981a0d/go.mod h1:Cdnkm+edb6C0pVkyCrwh3JTXAe0iUF9diDG/DztPI9I=
 github.com/bombsimon/logrusr/v2 v2.0.1 h1:1VgxVNQMCvjirZIYaT9JYn6sAVGVEcNtRE0y4mvaOAM=
 github.com/bombsimon/logrusr/v2 v2.0.1/go.mod h1:ByVAX+vHdLGAfdroiMg6q0zgq2FODY2lc5YJvzmOJio=
 github.com/bombsimon/logrusr/v4 v4.1.0 h1:uZNPbwusB0eUXlO8hIUwStE6Lr5bLN6IgYgG+75kuh4=
@@ -712,8 +716,8 @@ github.com/spf13/pflag v1.0.6/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An
 github.com/spf13/viper v1.12.0/go.mod h1:b6COn30jlNxbm/V2IqWiNWkJ+vZNiMNksliPCiuKtSI=
 github.com/spf13/viper v1.19.0 h1:RWq5SEjt8o25SROyN3z2OrDB9l7RPd3lwTWU8EcEdcI=
 github.com/spf13/viper v1.19.0/go.mod h1:GQUN9bilAbhU/jgc1bKs99f/suXKeUMct8Adx5+Ntkg=
-github.com/stmcginnis/gofish v0.20.0 h1:hH2V2Qe898F2wWT1loApnkDUrXXiLKqbSlMaH3Y1n08=
-github.com/stmcginnis/gofish v0.20.0/go.mod h1:PzF5i8ecRG9A2ol8XT64npKUunyraJ+7t0kYMpQAtqU=
+github.com/stmcginnis/gofish v0.19.0 h1:fmxdRZ5WHfs+4ExArMYoeRfoh+SAxLELKtmoVplBkU4=
+github.com/stmcginnis/gofish v0.19.0/go.mod h1:lq2jHj2t8Krg0Gx02ABk8MbK7Dz9jvWpO/TGnVksn00=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=
