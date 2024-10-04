@@ -19,6 +19,7 @@ import (
 
 func defaultBMCTransport() *http.Transport {
 	return &http.Transport{
+		//nolint:gosec // BMCs use self-signed certs
 		TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		DisableKeepAlives: true,
 		Dial: (&net.Dialer{
