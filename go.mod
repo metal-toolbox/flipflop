@@ -1,15 +1,17 @@
 module github.com/metal-toolbox/flipflop
 
-go 1.22
+go 1.23
 
-toolchain go1.22.1
+toolchain go1.23.1
 
 require (
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
-	github.com/bmc-toolbox/bmclib/v2 v2.2.2
+	github.com/bmc-toolbox/bmclib/v2 v2.3.1-0.20240927204409-62fb8e22434a
+	github.com/bmc-toolbox/common v0.0.0-20240926143744-8c478be881d7
 	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/equinix-labs/otel-init-go v0.0.9
+	github.com/go-logr/logr v1.4.2
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jeremywohl/flatten v1.0.1
@@ -23,22 +25,22 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
+	github.com/stmcginnis/gofish v0.19.0
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.53.0
-	go.opentelemetry.io/otel v1.28.0
-	go.opentelemetry.io/otel/trace v1.28.0
-	golang.org/x/net v0.28.0
+	go.opentelemetry.io/otel v1.30.0
+	go.opentelemetry.io/otel/trace v1.30.0
+	golang.org/x/net v0.29.0
 	golang.org/x/oauth2 v0.22.0
 )
 
 require (
 	cloud.google.com/go/kms v1.17.1 // indirect
-	dario.cat/mergo v1.0.0 // indirect
+	dario.cat/mergo v1.0.1 // indirect
 	github.com/Jeffail/gabs/v2 v2.7.0 // indirect
 	github.com/VictorLowther/simplexml v0.0.0-20180716164440-0bff93621230 // indirect
 	github.com/VictorLowther/soap v0.0.0-20150314151524-8e36fca84b22 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bmc-toolbox/common v0.0.0-20240723142833-87832458b53b // indirect
 	github.com/bytedance/sonic v1.12.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -55,7 +57,6 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.10.0 // indirect
-	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -114,7 +115,6 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stmcginnis/gofish v0.15.1-0.20231121142100-22a60a77be91 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
@@ -130,17 +130,17 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.28.0 // indirect
-	go.opentelemetry.io/otel/metric v1.28.0 // indirect
+	go.opentelemetry.io/otel/metric v1.30.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.28.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	gocloud.dev v0.38.0 // indirect
 	golang.org/x/arch v0.9.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/api v0.189.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240730163845-b1a4ccb954bf // indirect
