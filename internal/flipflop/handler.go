@@ -295,6 +295,8 @@ func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 }
 
 // XXX: It is incumbent on the caller to close the BMC handle.
+//
+//nolint:gocyclo // yeah, I know
 func validateFirmwareInternal(ctx context.Context, mon model.BMCBootMonitor, update statusUpdate, delay delayFunc) error {
 	if err := mon.Open(ctx); err != nil {
 		return fmt.Errorf("opening bmc connection: %w", err)
@@ -354,7 +356,7 @@ func validateFirmwareInternal(ctx context.Context, mon model.BMCBootMonitor, upd
 	var err error
 	for !hostBooted {
 		// now we've reset the server, give it a chance to come back
-		if err := delay(ctx); err != nil {
+		if err = delay(ctx); err != nil {
 			return fmt.Errorf("context error: %w", err)
 		}
 		hostBooted, err = mon.BootComplete()
