@@ -1,0 +1,10 @@
+with-expecter: true
+packages:
+  github.com/metal-toolbox/flipflop/internal/model:
+    config:
+      dir: "internal/model/mock"
+      fileName: "mock_{{.InterfaceName}}.go"
+    interfaces:
+      BMCBootMonitor:
+      UpdateFn:
+      DelayFn:
