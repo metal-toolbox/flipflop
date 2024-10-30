@@ -6,7 +6,7 @@ toolchain go1.22.1
 
 require (
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
-	github.com/bmc-toolbox/bmclib/v2 v2.2.2
+	github.com/bmc-toolbox/bmclib/v2 v2.3.4
 	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/equinix-labs/otel-init-go v0.0.9
@@ -37,7 +37,7 @@ require (
 	github.com/VictorLowther/simplexml v0.0.0-20180716164440-0bff93621230 // indirect
 	github.com/VictorLowther/soap v0.0.0-20150314151524-8e36fca84b22 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bmc-toolbox/common v0.0.0-20240723142833-87832458b53b // indirect
+	github.com/bmc-toolbox/common v0.0.0-20240806132831-ba8adc6a35e3 // indirect
 	github.com/bytedance/sonic v1.12.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -113,7 +113,7 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stmcginnis/gofish v0.15.1-0.20231121142100-22a60a77be91 // indirect
+	github.com/stmcginnis/gofish v0.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
