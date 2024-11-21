@@ -8,14 +8,14 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.22"
+          go-version-file: go.mod
       - name: Checkout code
         uses: actions/checkout@v4
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           args: --config .golangci.yml --timeout 2m
-          version: v1.57.1
+          version: v1.61.0
           skip-cache: true
       - name: Test
         run: go test ./...

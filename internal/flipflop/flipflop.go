@@ -5,13 +5,14 @@ import (
 	"os"
 
 	ctrl "github.com/metal-toolbox/ctrl"
+	rctypes "github.com/metal-toolbox/rivets/v2/condition"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+
 	"github.com/metal-toolbox/flipflop/internal/app"
 	"github.com/metal-toolbox/flipflop/internal/model"
 	"github.com/metal-toolbox/flipflop/internal/store"
 	"github.com/metal-toolbox/flipflop/internal/version"
-	rctypes "github.com/metal-toolbox/rivets/condition"
-	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel"
 )
 
 const (

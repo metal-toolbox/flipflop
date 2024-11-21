@@ -6,17 +6,18 @@ import (
 	"time"
 
 	ctrl "github.com/metal-toolbox/ctrl"
-	"github.com/metal-toolbox/flipflop/internal/app"
-	"github.com/metal-toolbox/flipflop/internal/device"
-	"github.com/metal-toolbox/flipflop/internal/metrics"
-	"github.com/metal-toolbox/flipflop/internal/model"
-	"github.com/metal-toolbox/flipflop/internal/store"
-	rctypes "github.com/metal-toolbox/rivets/condition"
+	rctypes "github.com/metal-toolbox/rivets/v2/condition"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/metal-toolbox/flipflop/internal/app"
+	"github.com/metal-toolbox/flipflop/internal/device"
+	"github.com/metal-toolbox/flipflop/internal/metrics"
+	"github.com/metal-toolbox/flipflop/internal/model"
+	"github.com/metal-toolbox/flipflop/internal/store"
 )
 
 type ConditionTaskHandler struct {
