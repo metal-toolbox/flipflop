@@ -50,7 +50,7 @@ jobs:
 
       - name: Scan image - flipflop
         id: scan-flipflop-image
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v5
         with:
           image: ghcr.io/metal-toolbox/flipflop:latest
           acs-report-enable: true
