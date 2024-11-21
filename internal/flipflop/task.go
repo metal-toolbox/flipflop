@@ -3,8 +3,8 @@ package flipflop
 import (
 	"encoding/json"
 
-	rctypes "github.com/metal-toolbox/rivets/condition"
-	rtypes "github.com/metal-toolbox/rivets/types"
+	rctypes "github.com/metal-toolbox/rivets/v2/condition"
+	rtypes "github.com/metal-toolbox/rivets/v2/types"
 	"github.com/mitchellh/copystructure"
 	"github.com/pkg/errors"
 )

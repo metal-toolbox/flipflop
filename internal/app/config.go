@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/jeremywohl/flatten"
-	"github.com/metal-toolbox/flipflop/internal/model"
-	"github.com/metal-toolbox/flipflop/internal/store/fleetdb"
-	"github.com/metal-toolbox/rivets/events"
+	"github.com/metal-toolbox/rivets/v2/events"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
+
+	"github.com/metal-toolbox/flipflop/internal/model"
+	"github.com/metal-toolbox/flipflop/internal/store/fleetdb"
 )
 
 var (

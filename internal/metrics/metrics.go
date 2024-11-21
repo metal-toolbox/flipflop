@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	rctypes "github.com/metal-toolbox/rivets/v2/condition"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-
-	rctypes "github.com/metal-toolbox/rivets/condition"
 )
 
 const (
