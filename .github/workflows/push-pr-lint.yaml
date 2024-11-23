@@ -42,7 +42,7 @@ jobs:
 
       - name: Build flipflop Docker image - no push
         id: dockerbuild-flipflop
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: false
