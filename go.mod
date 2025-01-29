@@ -7,7 +7,6 @@ toolchain go1.23.1
 require (
 	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/bombsimon/logrusr/v4 v4.1.0
-	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/coreos/go-oidc/v3 v3.12.0
 	github.com/equinix-labs/otel-init-go v0.0.9
 	github.com/google/uuid v1.6.0
@@ -45,6 +44,7 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cockroachdb/cockroach-go/v2 v2.3.8 // indirect
+	github.com/coreos/go-oidc v2.3.0+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/ericlagergren/decimal v0.0.0-20240411145413-00de7ca16731 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -150,7 +150,6 @@ require (
 	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
