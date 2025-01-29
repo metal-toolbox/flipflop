@@ -1,4 +1,4 @@
-FROM alpine:3.8 AS stage1
+FROM alpine:3.21 AS stage1
 
 ARG IPMITOOL_REPO=https://github.com/ipmitool/ipmitool.git
 ARG IPMITOOL_COMMIT=19d78782d795d0cf4ceefe655f616210c9143e62
@@ -37,7 +37,7 @@ WORKDIR /tmp
 RUN rm -rf /tmp/ipmitool
 
 # Build a lean image with dependencies installed.
-FROM alpine:3.8
+FROM alpine:3.21
 COPY --from=stage1 / /
 
 # required by ipmitool runtime
