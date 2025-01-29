@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	logrusrv2 "github.com/bombsimon/logrusr/v2"
+	logrusr "github.com/bombsimon/logrusr/v4"
 	"github.com/metal-toolbox/bmclib"
 	"github.com/metal-toolbox/bmclib/constants"
 	"github.com/metal-toolbox/bmclib/providers"
@@ -218,7 +218,7 @@ func newBmclibClient(asset *model.Asset, l *logrus.Entry) *bmclib.Client {
 		logger.Level = 5
 	}
 
-	logruslogr := logrusrv2.New(logger)
+	logruslogr := logrusr.New(logger)
 
 	bmcClient := bmclib.NewClient(
 		asset.BmcAddress.String(),
