@@ -1,4 +1,4 @@
-FROM alpine:3.8 as stage1
+FROM alpine:3.8 AS stage1
 
 ARG IPMITOOL_REPO=https://github.com/ipmitool/ipmitool.git
 ARG IPMITOOL_COMMIT=19d78782d795d0cf4ceefe655f616210c9143e62
