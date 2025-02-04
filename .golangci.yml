@@ -5,8 +5,7 @@ service:
 
 linters-settings:
   govet:
-    enable:
-      - fieldalignment
+    enable-all: true
     auto-fix: true
     shadow: true
     settings:
@@ -79,10 +78,9 @@ linters:
 issues:
   exclude-dirs:
     - internal/fixtures
-
+    - internal/model/mock
   exclude-files:
     - "(.*/)*.*_test.go"
-
   exclude-rules:
     - linters:
         - gosec

@@ -2,14 +2,17 @@ package flipflop
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/bmc-toolbox/common"
 	ctrl "github.com/metal-toolbox/ctrl"
 	rctypes "github.com/metal-toolbox/rivets/v2/condition"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"github.com/stmcginnis/gofish/redfish"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 
@@ -30,6 +33,29 @@ type ConditionTaskHandler struct {
 	task         *Task
 	startTS      time.Time
 	controllerID string
+}
+
+var (
+	ErrValidationUnsupported = errors.New("firmware validation is unsupported on this vendor")
+)
+
+// return a live session to the BMC (or an error). The caller is responsible for closing the connection
+func (cth *ConditionTaskHandler) openBMCConnection(ctx context.Context) error {
+	var bmc device.Queryor
+	if cth.cfg.Dryrun { // Fake BMC
+		bmc = device.NewDryRunBMCClient(cth.server)
+		cth.logger.Warn("using fake BMC")
+	} else {
+		bmc = device.NewBMCClient(cth.server, cth.logger)
+	}
+
+	err := bmc.Open(ctx)
+	if err != nil {
+		cth.logger.WithError(err).Error("bmc: failed to connect")
+		return err
+	}
+	cth.bmc = bmc
+	return nil
 }
 
 func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctypes.Task[any, any], publisher ctrl.Publisher) error {
@@ -79,25 +105,15 @@ func (cth *ConditionTaskHandler) HandleTask(ctx context.Context, genTask *rctype
 	)
 	cth.logger = loggerEntry
 
-	var bmc device.Queryor
-	if cth.cfg.Dryrun { // Fake BMC
-		bmc = device.NewDryRunBMCClient(server)
-		loggerEntry.Warn("Running BMC Device in Dryrun mode")
-	} else {
-		bmc = device.NewBMCClient(server, loggerEntry)
-	}
-
-	err = bmc.Open(ctx)
-	if err != nil {
-		loggerEntry.WithError(err).Error("bmc connection failed to connect")
+	if err := cth.openBMCConnection(ctx); err != nil {
 		return err
 	}
+
 	defer func() {
-		if err := bmc.Close(ctx); err != nil {
+		if err := cth.bmc.Close(ctx); err != nil {
 			loggerEntry.WithError(err).Error("bmc connection close error")
 		}
 	}()
-	cth.bmc = bmc
 
 	return cth.Run(ctx)
 }
@@ -216,73 +232,141 @@ func (cth *ConditionTaskHandler) setNextBootDevice(ctx context.Context, bootDevi
 	return cth.successful(ctx, "next boot device set successfully: "+bootDevice)
 }
 
+type statusUpdate func(string)
+
+type delayFunc func(context.Context) error
+
 func (cth *ConditionTaskHandler) validateFirmware(ctx context.Context) error {
 	cth.logger.Info("starting firmware validation")
 
-	deadline := time.Now().Add(cth.task.Parameters.ValidateFirmwareTimeout)
-
-	// First reboot the BMC to ensure it's running the desired firmware
-	if err := cth.bmc.PowerCycleBMC(ctx); err != nil {
-		return cth.failedWithError(ctx, "failed to power cycle BMC", err)
+	// confirm server vendor
+	if !strings.EqualFold(cth.server.Vendor, common.VendorSupermicro) {
+		cth.logger.WithField("vendor", cth.server.Vendor).Warn("unsupported vendor for firmware validation")
+		return cth.failedWithError(ctx, "", fmt.Errorf("%w : %s", ErrValidationUnsupported, cth.server.Vendor))
 	}
 
-	var err error
+	// get the correct handle to the BMC, we let bmclib deal with the differences between X11/X12/X13.
+	handle := newSMCValidationHandle(cth.server)
 
-	// Next we want to cycle the host, but the BMC will take some
-	// time to reboot, so retry once every 30 seconds up to our
-	// timeout deadline (ideally we'd have a way to distinguish
-	// failures that are due to the BMC not being back online yet
-	// from ones that aren't going to be resolved by waiting and
-	// retrying...)
-	for time.Now().Before(deadline) {
-		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
-			return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", errDelay)
-		}
-
-		err = cth.bmc.SetPowerState(ctx, "cycle")
-		if err == nil {
-			break
-		}
-	}
-
-	if err != nil {
-		return cth.failedWithError(ctx, "failed to cycle host power after BMC power cycle", err)
-	}
-
-	// Finally, wait for the host to boot successfully
-	for time.Now().Before(deadline) {
-		// sleep before checking to (hopefully) avoid seeing a
-		// stale POST code from a previous boot before the
-		// power-cycle has actually started happening
-		if errDelay := sleepInContext(ctx, 30*time.Second); errDelay != nil {
-			return cth.failedWithError(ctx, "failed to retrieve host boot status", errDelay)
-		}
-
-		booted, err := cth.bmc.HostBooted(ctx)
+	// updateFn publishes status messages back to the KV. Because these are status messages, they are
+	// advisory. We don't care too much if we miss a status update provided it's not the last one.
+	updateFn := func(payload string) {
+		err := cth.publishActive(ctx, payload)
 		if err != nil {
-			return cth.failedWithError(ctx, "failed to retrieve host boot status", err)
-		}
-		if booted {
-			done := time.Now()
-			srvID := cth.task.Parameters.AssetID
-			fwID := cth.task.Parameters.ValidateFirmwareID
-			if dbErr := cth.store.ValidateFirmwareSet(ctx, srvID, fwID, done); dbErr != nil {
-				return cth.failedWithError(ctx, "marking firmware set validated", dbErr)
-			}
-			return cth.successful(ctx, "firmware set validated: "+fwID.String())
+			cth.logger.
+				WithError(err).
+				WithField("payload", payload).
+				Warn("updating condition status")
 		}
 	}
 
-	return cth.failed(ctx, "host failed to boot successfully before deadline")
+	waitForBMC := func(ctx context.Context) error {
+		var err error
+		select {
+		case <-time.After(30 * time.Second):
+		case <-ctx.Done():
+			err = ctx.Err()
+		}
+		return err
+	}
+
+	deadlineCtx, cancel := context.WithTimeout(ctx, cth.task.Parameters.ValidateFirmwareTimeout)
+	validateErr := validateFirmwareInternal(deadlineCtx, handle, updateFn, waitForBMC)
+	cancel()
+
+	if clErr := handle.Close(context.Background()); clErr != nil {
+		cth.logger.
+			WithError(clErr).
+			Warn("closing bmc handle")
+	}
+
+	if validateErr != nil {
+		cth.logger.WithError(validateErr).Warn("error validating firmware")
+		return cth.failed(ctx, validateErr.Error())
+	}
+
+	done := time.Now()
+	srvID := cth.task.Parameters.AssetID
+	fwID := cth.task.Parameters.ValidateFirmwareID
+	if dbErr := cth.store.ValidateFirmwareSet(ctx, srvID, fwID, done); dbErr != nil {
+		return cth.failedWithError(ctx, "marking firmware set validated", dbErr)
+	}
+	return cth.successful(ctx, "firmware set validated: "+fwID.String())
 }
 
-func sleepInContext(ctx context.Context, t time.Duration) error {
-	select {
-	case <-time.After(t):
-		return nil
-	case <-ctx.Done():
-		return context.Canceled
+// XXX: It is incumbent on the caller to close the BMC handle.
+//
+//nolint:gocyclo // yeah, I know
+func validateFirmwareInternal(ctx context.Context, mon model.BMCBootMonitor, update statusUpdate, delay delayFunc) error {
+	if err := mon.Open(ctx); err != nil {
+		return fmt.Errorf("opening bmc connection: %w", err)
 	}
+
+	// First reset the BMC to ensure it's running the desired firmware
+	if _, err := mon.BmcReset(ctx, string(redfish.PowerCycleResetType)); err != nil {
+		return fmt.Errorf("doing bmc reset: %w", err)
+	}
+
+	update("bmc power cycle sent")
+	_ = mon.Close(ctx)
+
+	// Next we want to cycle the host, but the BMC will take some time to reboot
+	bmcConnected := false
+	for !bmcConnected {
+		if err := delay(ctx); err != nil {
+			return fmt.Errorf("context error: %w", err)
+		}
+
+		if err := mon.Open(ctx); err != nil {
+			payload := fmt.Sprintf("failed to connect to bmc: %s", err.Error())
+			update(payload)
+			continue
+		}
+		bmcConnected = true
+		update("bmc connection re-established")
+	}
+
+	bmcPowerStateSet := false
+	for !bmcPowerStateSet {
+		if err := delay(ctx); err != nil {
+			return fmt.Errorf("context error: %w", err)
+		}
+
+		currentState, err := mon.PowerStateGet(ctx)
+		if err != nil {
+			payload := fmt.Sprintf("getting bmc power state: %s", err.Error())
+			update(payload)
+			continue
+		}
+
+		newDeviceState := "cycle"
+		if strings.Contains(strings.ToLower(currentState), "off") {
+			newDeviceState = "on"
+		}
+
+		if _, err := mon.PowerSet(ctx, newDeviceState); err != nil {
+			update(fmt.Sprintf("bmc set power state to %s: %s", newDeviceState, err.Error()))
+			continue
+		}
+		bmcPowerStateSet = true
+		update(fmt.Sprintf("device power state set to %s", newDeviceState))
+	}
+
+	hostBooted := false
+	var err error
+	for !hostBooted {
+		// now we've reset the server, give it a chance to come back
+		if err = delay(ctx); err != nil {
+			return fmt.Errorf("context error: %w", err)
+		}
+		hostBooted, err = mon.BootComplete()
+		if err != nil {
+			update(fmt.Sprintf("checking host boot state: %s", err.Error()))
+			continue
+		}
+		update("host boot complete")
+	}
+	return nil
 }
 
 // pxeBootPersistent sets up the server to pxe boot persistently
@@ -292,6 +376,16 @@ func (cth *ConditionTaskHandler) pxeBootPersistent(ctx context.Context) error {
 	}
 
 	return cth.bmc.SetPowerState(ctx, "on")
+}
+
+func sleepInContext(ctx context.Context, td time.Duration) error {
+	var err error
+	select {
+	case <-time.After(td):
+	case <-ctx.Done():
+		err = ctx.Err()
+	}
+	return err
 }
 
 func (cth *ConditionTaskHandler) publish(ctx context.Context, status string, state rctypes.State) error {
