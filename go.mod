@@ -1,6 +1,6 @@
 module github.com/metal-toolbox/flipflop
 
-go 1.22.7
+go 1.23.0
 
 toolchain go1.23.1
 
@@ -28,7 +28,7 @@ require (
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
 	golang.org/x/net v0.34.0
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.29.0
 )
 
 require (
