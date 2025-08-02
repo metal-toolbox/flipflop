@@ -14,7 +14,7 @@ require (
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/metal-toolbox/bmclib v1.1.1
 	github.com/metal-toolbox/ctrl v1.1.1
-	github.com/metal-toolbox/fleetdb v1.20.1
+	github.com/metal-toolbox/fleetdb v1.20.4
 	github.com/metal-toolbox/rivets/v2 v2.1.0
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
